@@ -1,0 +1,104 @@
+-*-
+1.- Archivo de inclusion
+#include
+De sistema: <studio.h>
+
+Propios:"Local.h"
+        "tipos.h"
+
+2.-Definición de constantes
+#define
+#define PI 31.14159
+#define PASSWORD 12334
+
+const <tipo><nombre> [<variables>]
+const float PI = 3.14159;
+
+
+3.-Definicion de tipos
+    typedef:
+    
+    typedef <tipo> <nombre> [<variables>]
+
+typedef struct complejo
+{
+        float re;
+        float im;
+}COMPLEJO;
+
+COMPLEJO z1, z2, z3;
+int x, y, z;
+
+z1.re = 3;
+z1.im = 1;
+
+z1.re => %float
+z2.im => %float
+
+
+typedef struct amigos
+{
+        char nombre[25];
+        char correo[50];
+        int edad;
+
+}CONTACTOS
+
+CONTACTOS contactos[50];
+
+for(int i = 0; i < 50; i++)
+{
+        scanf("%s", &contactos[i].nombre);
+        scanf("%s", &contactos[i].correo);
+        scanf("%s", &contactos[i].edad);
+}
+
+COMPLEJO suma(struct complejo z1, struct complejo z2);
+
+
+
+4.- Prototipos de funciones
+
+        <tipo> nombre (<parámetros>)
+
+                parámetros: tipo nombre, tipo nombre, ...
+
+        void error(int i);
+        error(i);
+
+        int suma(int a, int b);
+        a = suma(c, d);
+
+
+5.- Declaración de variables globales
+
+        <tipo> nombre [inicialización]
+        int x = 3; => inicialización
+        char letra = 'A'; => inicialización
+
+
+6.- Definición de funciones
+        
+        <tipo> nombre (<parámetros>)
+        {
+                instrucciones
+        }
+
+        instrucciones:
+                Declaración de variables locales
+                instrucciones propais del programa
+                
+
+        int main(void)
+        {
+                instrucciones
+        }
+
+        int main(int argc, char *argv[])
+        {
+                instrucciones
+        }
+
+        int suma(int a, int b);
+        void error(int i);
+-*-       
