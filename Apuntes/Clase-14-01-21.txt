@@ -1,4 +1,8 @@
--*-
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+*                                                                                                           *                                 
+*                                       Componentes en un programa en c                                     *
+*                                                                                                           *
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 1.- Archivo de inclusion
 #include
 De sistema: <studio.h>
@@ -94,7 +98,7 @@ COMPLEJO suma(struct complejo z1, struct complejo z2);
                 instrucciones
         }
 
-        int main(int argc, char *argv[])
+        int main(int argc, char *argv[]) <- argumentos 
         {
                 instrucciones
         }
