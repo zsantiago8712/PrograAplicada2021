@@ -1,14 +1,14 @@
-final.out: Conexion-archivos-c.o suma.o resta.o
-	gcc -o final.out Conexion-archivos-c.o suma.o resta.o
+final.out: ConexionArchivos.o suma.o resta.o
+	gcc -o final.out ConexionArchivos.o suma.o resta.o
 
-Conexion-archivos-c.o: Conexion-archivos-c.c
-	gcc -c Conexion-archivos-c.c
+ConexionArchivos.o: ConexionArchivos.c
+	gcc -g -c ConexionArchivos.c
 
 suma.o: suma.c
-	gcc -c suma.c
+	gcc -g -c suma.c
 
 resta.o: resta.c
-	gcc -c resta.c
+	gcc -g -c resta.c
 
 clean:
 	rm *.o
