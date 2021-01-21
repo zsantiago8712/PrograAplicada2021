@@ -1,3 +1,4 @@
+//15-01-21
 // Programa que hace eco de sus argumentos
 
 #include <stdio.h>
@@ -8,7 +9,7 @@ int main(int argc, char *argv[])
     if(argc == 1)
     {
         printf("Error al correr el porgrama. Faltan argumentos\n");
-        exit(0);
+        exit(0); // --> cierra el programa
     }
 
     printf("Se recibieron %d argumentos\n", argc - 1);
