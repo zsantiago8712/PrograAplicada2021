@@ -1,11 +1,14 @@
-final.out: suma.o resta.o
-	gcc -o final.out modulo1.o modulo2.o
+final.out: modulo1.o modulo2.o modulo3.o
+	gcc -o final.out modulo1.o modulo2.o modulo3.o -lm
 
-suma.o: modulo1.c
+modulo1.o: modulo1.c
 	gcc -g -c modulo1.c
 
-resta.o: modulo2.c
+modulo2.o: modulo2.c
 	gcc -g -c modulo2.c
+
+modulo3.o: modulo3.c
+	gcc -g -c modulo3.c
 
 clean:
 	rm *.o
