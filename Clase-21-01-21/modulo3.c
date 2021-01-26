@@ -20,14 +20,14 @@ int division(int a, int b)
     return a / b;
 }
 
-int validacion(char a[20], char b[20])
+int validacion(char *a, char *b)
 {
     int length = strlen(a);
     for(int i = 0; i < length; i++)
     {
         if(!isdigit(a[i]))
         {
-            return 1;
+            return 0;
         }
         
     }
@@ -37,9 +37,9 @@ int validacion(char a[20], char b[20])
     {
         if(!isdigit(a[i]))
         {
-            return 1;
+            return 0;
         }
     }
 
-    return 0;
+    return 1;
 }

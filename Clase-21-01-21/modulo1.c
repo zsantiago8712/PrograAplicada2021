@@ -1,4 +1,4 @@
-// Programa de ejemplo para el suo de git
+// Programa de ejemplo para el uso de git
 // Santiago Zamora
 // Programacion
 // Primavera 2021
@@ -22,11 +22,11 @@ int main(int argc, char *argv[])
     
     if(argc != 4)
     {
-        printf("1ERROR DE ARGUMENTOS");
+        printf("ERROR DE ARGUMENTOS");
         exit(1);
     }
 
-    if(validacion(argv[1], argv[3]) == 0)
+    if(validacion(argv[1], argv[3]) == 1)
     {
         if(strcmp(argv[2], "+") == 0)
         {
