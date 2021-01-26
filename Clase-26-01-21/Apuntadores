@@ -1,0 +1,30 @@
+#Clase 26-01-21  #
+#                #                    
+##################
+
+                                        Apuntadores
+
+
+Un apuntador es una variable especial que contiene la dirrección de otra variable.
+
+Un apuntador guarda o apunta al a direccion de memoria de la computadroa donde gurada los datos de otra variable.
+
+Siempre es una variable númerica y debe ser inicializada antes de ser usada.
+
+Los nombres se manejan igual que las varibales.
+
+tipo * <nombre> [inicialización]
+
+int *p_numero
+char *str
+float *p_valor
+
+int x = 5;
+int y = 3;
+int *ap;
+
+ap = &x;
+
+también se puede imprimir con ---> pritf("%<tipo>", *<variable>);
+
+Pase de parametros por referencia es por apuntadores.
