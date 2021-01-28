@@ -1,0 +1,95 @@
+28-01-21
+
+                        Archivos
+
+
+Hay dos tipos de archvios: de Texto y Binarios.
+
+
+~Un archvio de texto se puede abrir en cualquier editor de texto.
+~Un archvio binario solo puede hacer abierto por el programa que lo creo.
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+        Procedimeinto
+
+1.- Abrir el el archivo
+
+2.- Leer o Escribir 
+
+3.- Cerrar el archivo
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+FILE *fp; ---> puntero que se usa para el manejo de archvios lleva el nombre estandar "fp"
+
+fopen(<nombre del archivo> o <variable string con el nombre del archivo guradado>, <modo de apertura>); ---> funcion para abrir Archivos
+
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+                Modos de apertura
+
+TEXTO                                   BINARIO
+
+w                                       wb o w+b           ---> Escritura
+r   rt                                  rb o r+b           ---> Lectura
+a                                       ab o a+b           ---> Escritura (append)
+
+
+Cierra el archivo
+fclose(fp);
+
+                                       
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+                        
+        Archivos de texto
+
+                        Lectura                             
+
+Dato por Dato                       fscanf(fp, "%s", &<variable tipo char[]>);
+
+Caracter por Caracter               fscanf(fp, "%c", &<variable tipo char>);
+
+Linea por Linea                     fgets(<cadena>, <longitud>, fp);
+
+
+                        Escritura
+
+Dato por Dato                       fprintf(fp, "%s", &<variable tipo char[]>);
+
+Caracter por Caracter               putc(fp, "%c", &<variable tipo char>);
+
+Linea por Linea                     fputs(<cadena>, fp);
+
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+        Archivos Binarios
+
+                        Lectura
+
+fread(&<variable>, <tamaño de la variable>, <numero de paquetes>, fp);
+
+
+                        Escritura
+
+fwrite(&<variable>, <tamaño de la variable>, <numero de paquetes>, fp);
+
+Ejemplo:
+
+int x;
+x = 6;
+
+fwrite(&x, sizeof(int), 1, fp); -------> variable normal -- escirbir una varibale por varianle
+fread(&x, sizeof(int), 1, fp);  -------> variable normal -- escirbir una varibale por varianle
+
+
+int a[50];
+fwrite(a, sizeof(int), 25, fp); -----> arreglo -- escirbir mas informacion de un golpe
+fread(a, sizeof(int), 25, fp);  -----> arreglo -- escirbir mas informacion de un golpe
