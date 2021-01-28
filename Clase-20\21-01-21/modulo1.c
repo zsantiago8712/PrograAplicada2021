@@ -1,8 +1,5 @@
+//20/21 - 01 -21
 // Programa de ejemplo para el uso de git
-// Santiago Zamora
-// Programacion
-// Primavera 2021
-
 
 #include <stdio.h>
 #include <stdlib.h>

@@ -1,3 +1,4 @@
+# 21/20 - 01 - 21 
 final.out: modulo1.o modulo2.o modulo3.o
 	gcc -o final.out modulo1.o modulo2.o modulo3.o -lm
 
