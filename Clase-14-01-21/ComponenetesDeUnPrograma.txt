@@ -3,6 +3,7 @@
 *                                       Componentes en un programa en c                                     *
 *                                                                                                           *
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
 1.- Archivo de inclusion
 #include
 De sistema: <studio.h>
@@ -105,4 +106,4 @@ COMPLEJO suma(struct complejo z1, struct complejo z2);
 
         int suma(int a, int b);
         void error(int i);
--*-       
+      

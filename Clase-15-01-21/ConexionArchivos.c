@@ -1,4 +1,5 @@
-// Programa que conecta archivos .c
+//15-01-21
+// Programa que conectar archivos .c
 
 #include <stdio.h>
 #include <stdlib.h>
