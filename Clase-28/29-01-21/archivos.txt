@@ -51,18 +51,18 @@ fclose(fp);
 
                         Lectura                             
 
-Dato por Dato                       fscanf(fp, "%s", &<variable tipo char[]>);
+Dato por Dato                       fscanf(fp, "<tipo>", <&variable tipo char[]>);
 
-Caracter por Caracter               fscanf(fp, "%c", &<variable tipo char>);
+Caracter por Caracter               fscanf(fp, "%c", <&variable tipo char>);
 
-Linea por Linea                     fgets(<cadena>, <longitud>, fp);
+Linea por Linea                     fgets(<cadena>, <&longitud>, fp);
 
 
                         Escritura
 
-Dato por Dato                       fprintf(fp, "%s", &<variable tipo char[]>);
+Dato por Dato                       fprintf(fp, "<tipo>", <variable tipo char[]>); --> Puede ser string, int y variaciones.
 
-Caracter por Caracter               putc(fp, "%c", &<variable tipo char>);
+Caracter por Caracter               putc(fp, "%c", <variable tipo char>);
 
 Linea por Linea                     fputs(<cadena>, fp);
 
