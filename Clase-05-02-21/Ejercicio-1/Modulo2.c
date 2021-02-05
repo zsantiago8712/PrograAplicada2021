@@ -22,6 +22,8 @@ void modificar_archivo(char *name, char *name2)
     fclose(fp1);
 
 
+
+
     
 
 
