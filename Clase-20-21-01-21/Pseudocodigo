@@ -1,0 +1,23 @@
+20/21 - 01 -21
+
+
+INICIO
+
+    validar _entradas
+    si se pasaron los argumentos incorrectos
+        mandar error
+        salir
+
+    si la operacion es diferete de suma o resta
+        mandar error
+        salir
+
+    si la opercion es suma
+        realizar suma
+
+    si la operacion es resta
+        realizar resta
+
+    imprimir resultado
+
+FIN 
