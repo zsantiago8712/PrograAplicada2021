@@ -1,0 +1,3 @@
+santiagI have a file opened with fopen. There is a way to reopen the same file (while it is opened) but have a different seek? (so i can use fread independently)
+
+c
