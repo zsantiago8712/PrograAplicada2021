@@ -7,7 +7,9 @@ int numero_de_lineas_archivo(char *file_to_read);
 
 
 
-
+// La funcion (read_and_write) recibe los dos nombres de archvios que dio el usario, 
+// el primero arhcivo es para leer linea por linea lo que tiene y cambiar las vocales que esten
+// por '?' y el segundo es para escibir los cambios.
 extern void read_and_write(char *file_to_read, char *file_to_write)
 {
 
@@ -44,7 +46,7 @@ extern void read_and_write(char *file_to_read, char *file_to_write)
 
 }
 
-//Esta funcion cuneat los numeros de lianeas que hay en el archivo y los retorna
+//Esta funcion cuenta los numeros de lineas que hay en el archivo y los retorna
 int numero_de_lineas_archivo(char *file_to_read)
 {
     FILE *fp;
