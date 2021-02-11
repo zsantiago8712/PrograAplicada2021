@@ -87,12 +87,12 @@ int x;
 x = 6;
 
 fwrite(&x, sizeof(int), 1, fp); -------> variable normal -- escirbir una varibale por variable
-fread(&x, sizeof(int), 1, fp);  -------> variable normal -- escirbir una varibale por variable
+fread(&x, sizeof(int), 1, fp);  -------> variable normal -- leer una varibale por variable
 
 
 int a[50];
 fwrite(a, sizeof(int), 25, fp); -----> arreglo -- escirbir mas informacion de un golpe
-fread(a, sizeof(int), 25, fp);  -----> arreglo -- escirbir mas informacion de un golpe
+fread(a, sizeof(int), 25, fp);  -----> arreglo -- leer mas informacion de un golpe
 
 
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

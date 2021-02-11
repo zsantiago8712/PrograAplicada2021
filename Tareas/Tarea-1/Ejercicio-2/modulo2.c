@@ -3,9 +3,9 @@
 
 
 
-// La funcion (read_and_write) recibe el nombre de archvios que dio el usario, 
-// el primero arhcivo es para leer linea por linea lo que tiene y cambiar las vocales que esten
-// por '?' y el segundo es para escibir los cambios.
+/* La funcion (read_and_write) recibe el nombre de archvio que dio el usario, 
+    lee paquete por paquete con un tamaño de un byte para imprimirlo en la terminal
+*/ 
 extern void read_and_write(char *file_to_read)
 {
 
