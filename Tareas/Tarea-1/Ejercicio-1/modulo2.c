@@ -15,17 +15,17 @@ extern void read_and_write(char *file_to_read, char *file_to_write)
 
     int num_lineas = 0; 
     num_lineas = numero_de_lineas_archivo(file_to_read);
-
+    printf("%d\n", num_lineas);
     FILE *fp, *fp1;
     fp = fopen(file_to_read, "r");
     fp1 = fopen(file_to_write, "w");
-    char line[num_lineas];
+    char line[80];
     int a = 0;
     
 
-    while(fgets(line, num_lineas, fp))
-    {   
-        
+    while(fgets(line, 80, fp) == 1)
+    {
+
         for(int i = 0; i < strlen(line); i++)
         {
             if(line[i] == 'a' || line[i] == 'e' || line[i] == 'i' || line[i] == 'o' || line[i] == 'u')
@@ -36,8 +36,7 @@ extern void read_and_write(char *file_to_read, char *file_to_write)
                 line[i] = '?';
             }
         }
-        fputs(line, fp1);
-        a++;
+        fputs(line, fp1);              
     }  
     fclose(fp);
     fclose(fp1);
@@ -46,20 +45,3 @@ extern void read_and_write(char *file_to_read, char *file_to_write)
 
 }
 
-//Esta funcion cuenta los numeros de lineas que hay en el archivo y los retorna
-int numero_de_lineas_archivo(char *file_to_read)
-{
-    FILE *fp;
-    fp = fopen(file_to_read, "r");
-    char letra;
-    int num_lineas = 0;
-
-    while(fscanf(fp, "%c", &letra) != EOF)
-    {
-        if(letra == 10)
-        {
-            num_lineas++;
-        }
-    }
-    return num_lineas;
-}
