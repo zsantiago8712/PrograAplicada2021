@@ -6,20 +6,23 @@
 /* La funcion (read_and_write) recibe el nombre de archvio que dio el usario, 
     lee paquete por paquete con un tamaño de un byte para imprimirlo en la terminal
 */ 
-extern void read_and_write(char *file_to_read)
+void read_and_print(char *file_to_read)
 {
 
     FILE *fp, *fp1;
     fp = fopen(file_to_read, "r");
-    char line[80];
+    if(fp == NULL)
+    {
+        printf("ERROR: El archvivo no existe\n");
+        exit(0);
+    }
+    char line[10];
     
-    
-
-    while (fread(line, sizeof(char), 1, fp) == 1)
+    while (fread(line, sizeof(char), 1, fp) == 1) //Se asume que los paquetes tienen un tamaño de 1 byte
     {
         printf("%s", line);
     }
-    
+    printf("\n");
     fclose(fp);
 
 
