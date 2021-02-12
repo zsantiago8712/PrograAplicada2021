@@ -3,7 +3,6 @@
 #include <string.h>
 
 
-int numero_de_lineas_archivo(char *file_to_read);
 
 
 
@@ -13,17 +12,18 @@ int numero_de_lineas_archivo(char *file_to_read);
 extern void read_and_write(char *file_to_read, char *file_to_write)
 {
 
-    int num_lineas = 0; 
-    num_lineas = numero_de_lineas_archivo(file_to_read);
-    printf("%d\n", num_lineas);
     FILE *fp, *fp1;
     fp = fopen(file_to_read, "r");
+    if(fp == NULL)
+    {
+        printf("ERROR: El archvivo no existe\n");
+        exit(1);
+    }
     fp1 = fopen(file_to_write, "w");
     char line[80];
-    int a = 0;
     
 
-    while(fgets(line, 80, fp) == 1)
+    while(fgets(line, 80, fp) != 1)         //Se asume que la linea/renglon tiene un tamaño de 80 caracters
     {
 
         for(int i = 0; i < strlen(line); i++)
