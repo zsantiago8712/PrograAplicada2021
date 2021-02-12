@@ -44,7 +44,7 @@ extern void read_and_write(char *file_to_read, char *file_to_write)
 }
 
 
-int is_vocal(char letra)
+int is_vocal(char letra) // Funcion para validar si es vocal
 {
     letra = tolower(letra);
     if(letra == 'a' || letra == 'e' || letra == 'i' || letra == 'o' || letra == 'u')
