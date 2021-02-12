@@ -1,6 +1,6 @@
 /*******************************************************
  *
- * Tarea-1  -  Ejercico-1
+ * Tarea-1  -  Ejercico-2
  * Programación Aplicada
  * Santiago Zamora
  * Primavera 2021
@@ -11,8 +11,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-
-extern void read_and_write(char *file_to_read);
+//Funcion externa para leer y imprimir los paquetes
+extern void read_and_print(char *file_to_read);
 
 int main(int argc, char *argv[])
 {
@@ -23,6 +23,6 @@ int main(int argc, char *argv[])
         exit(0);
     }
 
-    read_and_write(argv[1]); 
+    read_and_print(argv[1]); 
     
 }
