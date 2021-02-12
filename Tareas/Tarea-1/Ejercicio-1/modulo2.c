@@ -1,9 +1,10 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
+#include <ctype.h>
 
 
-
+int is_vocal(char letra);
 
 
 // La funcion (read_and_write) recibe los dos nombres de archvios que dio el usario, 
@@ -23,25 +24,33 @@ extern void read_and_write(char *file_to_read, char *file_to_write)
     char line[80];
     
 
-    while(fgets(line, 80, fp) != 1)         //Se asume que la linea/renglon tiene un tamaño de 80 caracters
+    while(fgets(line, 80, fp) != 0)         //Se asume que la linea/renglon tiene un tamaño de 80 caracters
     {
 
         for(int i = 0; i < strlen(line); i++)
         {
-            if(line[i] == 'a' || line[i] == 'e' || line[i] == 'i' || line[i] == 'o' || line[i] == 'u')
-            {
-                line[i] = '?';
-            }else if(line[i] == 'A' || line[i] == 'E' || line[i] == 'O' || line[i] == 'U' || line[i] == 'I')
+            if(is_vocal(line[i]) == 1)
             {
                 line[i] = '?';
             }
+
         }
         fputs(line, fp1);              
     }  
     fclose(fp);
     fclose(fp1);
 
+    
+}
 
 
+int is_vocal(char letra)
+{
+    letra = tolower(letra);
+    if(letra == 'a' || letra == 'e' || letra == 'i' || letra == 'o' || letra == 'u')
+    {
+        return 1;
+    }
+    return 0;
 }
 
