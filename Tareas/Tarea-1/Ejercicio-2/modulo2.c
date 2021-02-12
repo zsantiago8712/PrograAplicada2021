@@ -8,15 +8,17 @@
 */ 
 void read_and_print(char *file_to_read)
 {
-
-    FILE *fp, *fp1;
+    
+    char line[10];
+    FILE *fp;
+    
     fp = fopen(file_to_read, "r");
     if(fp == NULL)
     {
         printf("ERROR: El archvivo no existe\n");
         exit(0);
     }
-    char line[10];
+    
     
     while (fread(line, sizeof(char), 1, fp) == 1) //Se asume que los paquetes tienen un tamaño de 1 byte
     {
@@ -24,8 +26,6 @@ void read_and_print(char *file_to_read)
     }
     printf("\n");
     fclose(fp);
-
-
 
 }
 
