@@ -1,0 +1,22 @@
+Apuntadores a estructuras
+
+
+struct simbolo *psim; --> declaracion de un puntero a una estructura
+
+*psim.elemento 
+      =             son lo mismo, ambos estan apuntadon al elemento de una estructura
+psim -> elemento 
+
+
+tydef struct datos
+{
+    int numero;
+    char nombre[25];
+}DATOS;
+
+DATOS contacto; ---> Asi se crea una varibale tipo DATOS
+
+
+contacto.numero 
+                ----> Así se 
+contacto.nombre 

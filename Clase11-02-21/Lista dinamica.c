@@ -63,7 +63,7 @@ int main(void)
         aux ->sig = nodo;
     }
     aux = nodo;     //aux es un apuntador que apunta al ultimo nodo creado
-    nodo ->sig = NULL; //sig es un pauntador dentro de la estructura que apunta a ek mismo tipo de estructura osea apunta al siguinete elemento
+    nodo ->sig = NULL; //sig es un pauntador dentro de la estructura que apunta a la mismo tipo de estructura osea apunta al siguinete elemento
 
 
 

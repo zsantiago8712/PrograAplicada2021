@@ -10,10 +10,12 @@ int is_vocal(char letra);
 // La funcion (read_and_write) recibe los dos nombres de archvios que dio el usario, 
 // el primero arhcivo es para leer linea por linea lo que tiene y cambiar las vocales que esten
 // por '?' y el segundo es para escibir los cambios.
-extern void read_and_write(char *file_to_read, char *file_to_write)
+void read_and_write(char *file_to_read, char *file_to_write)
 {
 
     FILE *fp, *fp1;
+    char line[80];
+
     fp = fopen(file_to_read, "r");
     if(fp == NULL)
     {
@@ -21,7 +23,6 @@ extern void read_and_write(char *file_to_read, char *file_to_write)
         exit(1);
     }
     fp1 = fopen(file_to_write, "w");
-    char line[80];
     
 
     while(fgets(line, 80, fp) != 0)         //Se asume que la linea/renglon tiene un tamaño de 80 caracters

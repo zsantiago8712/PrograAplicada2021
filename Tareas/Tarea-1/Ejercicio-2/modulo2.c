@@ -9,10 +9,10 @@
 void read_and_print(char *file_to_read)
 {
     
-    char line[10];
+    char line;
     FILE *fp;
     
-    fp = fopen(file_to_read, "r");
+    fp = fopen(file_to_read, "rb"); //rb para leer archivos binarios
     if(fp == NULL)
     {
         printf("ERROR: El archvivo no existe\n");
@@ -20,11 +20,10 @@ void read_and_print(char *file_to_read)
     }
     
     
-    while (fread(line, sizeof(char), 1, fp) == 1) //Se asume que los paquetes tienen un tamaño de 1 byte
+    while (fread(&line, sizeof(char), 1, fp) == 1) //Se asume que los paquetes tienen un tamaño de 1 byte
     {
-        printf("%s", line);
+        printf("%c\n", line);
     }
-    printf("\n");
     fclose(fp);
 
 }

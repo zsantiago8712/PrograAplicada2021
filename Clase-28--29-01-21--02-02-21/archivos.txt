@@ -51,11 +51,11 @@ fclose(fp);
 
                         Lectura                             
 
-Dato por Dato                       fscanf(fp, "<tipo>", <&variable tipo char[]>);
+Dato por Dato                       fscanf(fp, "<tipo>", <&variable tipo char[]>) == 1;
 
-Caracter por Caracter               fscanf(fp, "%c", <&variable tipo char>);
+Caracter por Caracter               fscanf(fp, <&variable tipo char>);
 
-Linea por Linea                     fgets(<cadena>, <&longitud>, fp);
+Linea por Linea                     fgets(<cadena>, <&longitud>, fp) != 0;
 
 
                         Escritura
@@ -74,7 +74,7 @@ Linea por Linea                     fputs(<cadena>, fp);
 
                         Lectura
 
-fread(&<variable>, <tamaño de la variable>, <numero de paquetes>, fp);
+fread(&<variable>, <tamaño de la variable>, <numero de paquetes>, fp); 
 
 
                         Escritura
@@ -108,7 +108,7 @@ SEEK_CUR ----> Desde donde está fp en ese momento ----> Sepued usar tambien: 1
 
 SEEK_END ----> Desde el final del archivo -------> Se puede usar tambien: 2 ----> Mueve hasta el final para leer el archivo de atras hacia adelante
 
-ftell(fp) ----> Regresa la distancia ne bites desde el prinncipio hasta donde este fp cunado llamoas llamar la funcion ftell() 
+ftell(fp) ----> Regresa la distancia en bites desde el prinncipio hasta donde este fp cunado llamamos llamar la funcion ftell() 
 
 
 
