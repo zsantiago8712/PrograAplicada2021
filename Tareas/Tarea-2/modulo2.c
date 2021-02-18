@@ -44,7 +44,7 @@ void recorrer_lista(LISTA *inicio, char *file_name)
     
 }
 
-//Funcion para liberar la memoria de la lista dinamica
+//Funcion para liberar la memoria de la lista dinámica
 void liberar_memoria(LISTA *inicio)
 {
     LISTA *nodo;
