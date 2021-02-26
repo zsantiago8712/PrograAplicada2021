@@ -27,7 +27,7 @@ void agregar_cancion(LISTA **inicio, LISTA **aux)
     printf("\nIntroduce el nombre del album: ");
     scanf("%s",nodo->album);
     printf("\nIntroduce el año en el que salio el album: ");
-  
+    scanf("%d",&nodo->year);
  
     nodo = *inicio;
     if(*inicio == NULL)
@@ -38,7 +38,7 @@ void agregar_cancion(LISTA **inicio, LISTA **aux)
         (*aux)->sig = nodo;
     }
     *aux = nodo;
-    nodo->sig = NULL;
+    
  
 }
 
