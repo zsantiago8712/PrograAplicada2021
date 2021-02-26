@@ -20,13 +20,14 @@ void agregar_cancion(LISTA **inicio, LISTA **aux)
         exit(1);
     }
  
+    printf("Introduce el nombre de la cancion: ");
     scanf("%s",nodo->nombre_cancion);
     printf("\nIntroduce el nombre del interprete: ");
     scanf("%s",nodo->interprete);
     printf("\nIntroduce el nombre del album: ");
     scanf("%s",nodo->album);
     printf("\nIntroduce el año en el que salio el album: ");
-    scanf("%d",&nodo->year);
+  
  
     nodo = *inicio;
     if(*inicio == NULL)
