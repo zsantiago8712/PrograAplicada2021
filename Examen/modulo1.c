@@ -38,7 +38,7 @@ void agregar_cancion(LISTA **inicio, LISTA **aux)
         (*aux)->sig = nodo;
     }
     *aux = nodo;
-    
+    nodo->sig = NULL;
  
 }
 
