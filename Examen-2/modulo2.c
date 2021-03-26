@@ -263,6 +263,8 @@ void buscarPalabra(ARBOL *raiz, char *palabra){
 
 
 
+
+
 /*Santiago Zamora Solis archivoBusqueda: Abre el archivo encontradas.txt y guarda la palabra buscada y sus coincidencias.
 *Recibe: Apuntador a raiz.
 *Devuelve: void*/
