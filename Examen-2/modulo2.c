@@ -278,3 +278,5 @@ void archivoBusqueda(ARBOL *raiz){
     fprintf(fp,"%s\t %d\n", raiz->palabra, raiz->ocurrencia);
     fclose(fp);
 }
+
+
