@@ -31,17 +31,22 @@ gint main(gint argc, gchar *argv[])
 
 
 //! INICIO - PANTALLA DE CARGA INICIAL
+    //* Crea la ventana de pantalla de carga
 void pantallaDeCarga(int window_num)
 {
-    GtkWidget *window, *progressBar, *cajaV, *etiqueta;
+    GtkWidget *window, *progressBar, *cajaV, *image;
     WIDGETS *elementos;
-
+    
+    char *images[] = {"images/3.jpg", "images/6.jpg"};
     elementos = malloc(sizeof(WIDGETS));
+    srand(time(NULL));
+    
+
 
     //2.- Crear widgets
     window = gtk_window_new(GTK_WINDOW_TOPLEVEL);
     cajaV = gtk_vbox_new(FALSE, 5);
-    etiqueta = gtk_label_new("Batalla Naval");
+    image = gtk_image_new_from_file(images[rand() %2]);
     progressBar = gtk_progress_bar_new();
 
     elementos->nextWindow = TRUE;
@@ -59,7 +64,7 @@ void pantallaDeCarga(int window_num)
     
 
     //4.- Definir la jerarquia del programa
-    gtk_box_pack_start(GTK_BOX(cajaV), etiqueta, TRUE, TRUE, 5);
+    gtk_box_pack_start(GTK_BOX(cajaV), image, TRUE, TRUE, 5);
     gtk_box_pack_start(GTK_BOX(cajaV), progressBar, TRUE, FALSE, 0);
     gtk_container_add(GTK_CONTAINER(window), cajaV);
 
@@ -102,15 +107,7 @@ void inc_progress(gpointer data, GtkWidget *window, int window_num)
                
     }
     gtk_widget_destroy(window);
-    if(window_num == 0)
-    {
-        g_print("wwwwww");
-        menuPrincipal();  
-    }else if(window_num == 1)
-    {
-        //window3();
-        menuPrincipal();
-    }
+    menuPrincipal();
      
 }
 
