@@ -37,6 +37,7 @@ typedef struct widgets
     gboolean saveNewFile;
     gboolean saveAndQuit;
     gint segundos;
+    int gameMode;
     int idTimer;
     int tirosJ1;
     int tirosJ2;
@@ -44,15 +45,24 @@ typedef struct widgets
     int tirosTotalJ2;
     int tirosTotal; 
     int question;
+    int numVentan;
     char *seleccionJ1[10];
     char *seleccionJ2[10];
     int numAtras;
     char *fileName;
     char *nameJ1;
     char *nameJ2;
-
-    
+ 
 }WIDGETS;
+
+
+typedef struct lista
+{
+    char *nombre;
+    int tiempoFinal;
+    struct lista *sig;
+}MARCADORES;
+
 
 
 
