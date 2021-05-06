@@ -1,5 +1,14 @@
 #include "local.h"
 
+
+//* INICIO --> FUNCIONES EXTERNAS
+extern void menuPrincipal(void);
+extern void jugador1VsJugador2(char *nombreJ1, char *nombreJ2);
+extern void jugador1VsCpu(char *nombreJ1);
+//* FIN --> FUNCIONES EXTERNAS
+
+
+//* INICIO --> FUNCIONES INTERNAS
 void salir(GtkWidget *widget, gpointer userData);
 void cancel(GtkButton *boton, gpointer userData);
 void saveHistory(GtkButton *boton, gpointer userData);
@@ -24,9 +33,16 @@ void dialogWarning(WIDGETS *elementos, int numMensajeError);
 void cancelWindowName(GtkButton *boton, gpointer userData);
 gint timer(gpointer data);
 void restart(WIDGETS *elementos);
+void crearJuegoNuevo(GtkButton *boton, gpointer userData);
+void dialogWinner(WIDGETS *elementos, int jugador);
+void on_close (GtkDialog *dialog, gint response_id, gpointer userData);
+void saveScoreBoard(char *nombre, int tiempo);
+void create_list(MARCADORES **inicio, MARCADORES **aux, char *nombre, int tiempo);
+void ordenarMarcadores(MARCADORES *incio);
+void reescribir_archivo(MARCADORES *inicio);
+void liberarMemorial(MARCADORES *inicio);
+//* FIN --> FUNCIONES INTERNA
 
-extern void menuPrincipal(void);
-extern void jugador1VsJugador2(char *nombreJ1, char *nombreJ2);
 
 
 //! INICION ---> Funciones Genearles
@@ -35,7 +51,7 @@ gboolean delete_event_handler(GtkWidget *widget, gpointer userData)
     g_print("En delete_event_handler.\n");
     return FALSE;
 }
-
+    //* Funcion que hace que finalice el programa
 void salir(GtkWidget *widget, gpointer userData)
 {
     WIDGETS *elementos = (WIDGETS *)userData;
@@ -43,13 +59,18 @@ void salir(GtkWidget *widget, gpointer userData)
      
     if(!elementos->nextWindow) 
     {
+        if(elementos->numVentan == 2)
+        {
+            g_list_free(elementos->list);
+        }
         g_print("Click en salir\n");
-        g_list_free(elementos->list);
+        g_print("sip\n");
         gtk_main_quit();
     }
     g_print("sip\n");
 }
 
+    //* Funcion que crea una ventana para recibir el nombre del archivo en donde se va a gurdar la partida
 void createFile(GtkButton *boton, gpointer userData)
 {
     WIDGETS *elementos = (WIDGETS *)userData;
@@ -88,15 +109,16 @@ void createFile(GtkButton *boton, gpointer userData)
     gtk_widget_show_all(windowChoose);
 }
 
-
+//* Recibe la señal del boton cancelar en la ventana donde se recibe ewl nombre del archivo donde se va ha guardar la apartida
 void cancel(GtkButton *boton, gpointer userData)
 {
     WIDGETS *elementos = (WIDGETS *)userData;
     gtk_widget_destroy(elementos->windowFile);
+    g_print("\nc\n");
     restart(elementos);
 }
 
-
+//* Guarda la partida en un archivo .btn
 void saveHistory(GtkButton *boton, gpointer userData)
 {
 
@@ -110,17 +132,15 @@ void saveHistory(GtkButton *boton, gpointer userData)
         g_print("%s", elementos->fileName);
         fp = fopen(strdup(elementos->fileName), "r");
         
-        if(fp == NULL)
-        {
-            g_print("si paso\n");
-        }else
+        if(fp != NULL)
         {
             fclose(fp);
             g_print("2si paso\n");
+            elementos->question = 0;
             if(!show_question(elementos))
             {
-                gtk_widget_destroy(elementos->windowFile);
-                restart(elementos);
+                elementos->nextWindow = FALSE;
+                //gtk_widget_destroy(elementos->windowFile);
                 return;
             }
             g_print("si paso\n");
@@ -138,6 +158,7 @@ void saveHistory(GtkButton *boton, gpointer userData)
     fprintf(fp, "%d\n", elementos->tirosTotalJ2);
     fprintf(fp, "%d\n", elementos->tirosTotal);
     fprintf(fp, "%s\n", elementos->nameJ1);
+    g_print("bbb\n %s", elementos->nameJ2);
     fprintf(fp, "%s\n", elementos->nameJ2);
     
     if(elementos->turnoJ1)
@@ -192,19 +213,31 @@ void saveHistory(GtkButton *boton, gpointer userData)
     }
 
     fprintf(fp, "%d", elementos->segundos);
-    fprintf(fp, "%s", "*T\n");
+    fprintf(fp, "%s", "*T");
 
     fclose(fp);
 
-    if(elementos->saveNewFile)
+    if(elementos->saveAndQuit && elementos->saveNewFile)
+    {   
+        g_print("nel");
+        elementos->nextWindow = TRUE;
+        gtk_widget_destroy(elementos->windowFile);
+        gtk_widget_destroy(elementos->ventana);
+        g_list_free(elementos->list);
+        menuPrincipal(); 
+
+    }else if(elementos->saveNewFile)
     {
-       gtk_widget_destroy(elementos->windowFile);
+        elementos->nextWindow = FALSE;
+        gtk_widget_destroy(elementos->windowFile);
+        restart(elementos);
     }
-    restart(elementos);
+    elementos->nextWindow = FALSE;
+    
     
 }
 
-
+//* ventana para escoger el archivo de forma grafica
 void fileChooser(GtkButton *boton, gpointer userData)
 {
     WIDGETS *elementos = (WIDGETS *)userData;
@@ -238,7 +271,6 @@ void fileChooser(GtkButton *boton, gpointer userData)
     gtk_file_chooser_set_create_folders(GTK_FILE_CHOOSER(dialog), FALSE);
     while(!isValid)
     {
-        g_print("aaaa\n");
         resp = gtk_dialog_run(GTK_DIALOG(dialog));
         if(resp == GTK_RESPONSE_OK)
         {
@@ -265,7 +297,7 @@ void fileChooser(GtkButton *boton, gpointer userData)
                 respW = gtk_dialog_run(GTK_DIALOG(errorDialog));
                 if(respW == GTK_RESPONSE_OK)
                     gtk_widget_destroy(errorDialog);
-                }      
+                }        
         }
         else
         {
@@ -283,7 +315,7 @@ void fileChooser(GtkButton *boton, gpointer userData)
     gtk_statusbar_push(GTK_STATUSBAR(elementos->statusBar), 0, "Esperando al siguiente tiro");
    
 }
-
+//* Formate el string para quitar todo lo que este apartir de '*'
 void cambiarNombre(char *nombre)
 {
     char nuevoNombre[strlen(nombre)];
@@ -300,6 +332,7 @@ void cambiarNombre(char *nombre)
     }
 }
 
+//* Funcion para regresar un tiro atras
 void atras(GtkButton *boton, gpointer userData)
 {
     WIDGETS *elementos = (WIDGETS *)userData;
@@ -355,6 +388,7 @@ void atras(GtkButton *boton, gpointer userData)
     }
 }
 
+//* Regresa todos los tiros hasta el inicio
 void deshacerFunction(GtkButton *boton, gpointer userData)
 {
     
@@ -414,7 +448,7 @@ void deshacerFunction(GtkButton *boton, gpointer userData)
     elementos->numAtras = 0;
 }
 
-
+//* Si se regreso un tiro hacia atras este lo regresara hacia adelante
 void adelante(GtkButton *boton, gpointer userData)
 {
     WIDGETS *elementos = (WIDGETS *)userData;
@@ -456,6 +490,7 @@ void adelante(GtkButton *boton, gpointer userData)
             }else 
             {
                 nameComp = strdup(gtk_widget_get_name(elementos->botonesTb2[i][j]));
+               
                 if(strcmp(name, nameComp) == 0)
                 {
                     gtk_widget_modify_bg(elementos->botonesTb2[i][j], GTK_STATE_INSENSITIVE, &color);
@@ -473,21 +508,27 @@ void adelante(GtkButton *boton, gpointer userData)
         gtk_widget_set_sensitive(GTK_WIDGET(elementos->rehacer), FALSE);
         gtk_widget_set_sensitive(GTK_WIDGET(elementos->deshacer), TRUE); 
         gtk_widget_set_sensitive(GTK_WIDGET(elementos->bAtras), TRUE);
-        if(elementos->turnoJ1)
+        if(elementos->gameMode == 1)
         {
-            g_print("\nssss\n");
-            gtk_widget_set_sensitive(GTK_WIDGET(elementos->tb1), TRUE);
-        }else if(elementos->turnoJ2)
+            if(elementos->turnoJ1)
+            {
+                g_print("\nssss\n");
+                gtk_widget_set_sensitive(GTK_WIDGET(elementos->tb1), TRUE);
+            }else if(elementos->turnoJ2)
+            {
+                g_print("\nhhhhh\n");
+                gtk_widget_set_sensitive(GTK_WIDGET(elementos->tb2), TRUE);
+            }
+        }else
         {
-            g_print("\nhhhhh\n");
-            gtk_widget_set_sensitive(GTK_WIDGET(elementos->tb2), TRUE);
+           gtk_widget_set_sensitive(GTK_WIDGET(elementos->tb1), TRUE); 
         }
         restart(elementos);
     }
 }
 
 
-
+//* Regresa todos los tiros hasta donde se quedo la partida
 void rehacerFunction(GtkButton *boton, gpointer userData)
 {
     WIDGETS *elementos = (WIDGETS *)userData;
@@ -541,35 +582,91 @@ void rehacerFunction(GtkButton *boton, gpointer userData)
     gtk_widget_set_sensitive(GTK_WIDGET(elementos->bAdelante), FALSE);
     gtk_widget_set_sensitive(GTK_WIDGET(elementos->bAtras), TRUE);
     gtk_widget_set_sensitive(GTK_WIDGET(elementos->deshacer), TRUE);
-    if(elementos->turnoJ1)
+    if(elementos->gameMode == 1)
     {
-        gtk_widget_set_sensitive(GTK_WIDGET(elementos->tb1), TRUE);
-        
-    }else if(elementos->turnoJ2)
+        if(elementos->turnoJ1)
+        {
+            gtk_widget_set_sensitive(GTK_WIDGET(elementos->tb1), TRUE);
+            
+        }else if(elementos->turnoJ2)
+        {
+            gtk_widget_set_sensitive(GTK_WIDGET(elementos->tb2), TRUE);
+        }
+    }else
     {
-        gtk_widget_set_sensitive(GTK_WIDGET(elementos->tb2), TRUE);
+       gtk_widget_set_sensitive(GTK_WIDGET(elementos->tb1), TRUE);  
     }
+    
     restart(elementos);
     g_print("\nnumA ---> %d\n", elementos->numAtras);
 }
 
 
-
+//* Regresera al menu, preguntando si quiere salir y si quiere guardar la partida
 void backToMenu(GtkButton *boton, gpointer userData)
 {
     WIDGETS *elementos = (WIDGETS *)userData; 
+    gtk_timeout_remove(elementos->idTimer);
+    gboolean save;
     elementos->nextWindow = TRUE;
-    gtk_widget_destroy(elementos->ventana);
-    menuPrincipal();
+    elementos->question = 1;
+    elementos->saveAndQuit = TRUE;
+    if(show_question(elementos))
+    {
+        elementos->question = 2;
+        
+        if(elementos->segundos == 0)
+        {
+            gtk_widget_destroy(elementos->ventana);
+            g_list_free(elementos->list);
+            menuPrincipal();
+            return;
+        }else
+        {
+            if(!show_question(elementos))
+            {
+                gtk_widget_destroy(elementos->ventana);
+                menuPrincipal();
+                return;
+            }else
+            {
+                createFile(boton, elementos);
+                return;
+            }
+        }
+    }
+    if(elementos->segundos > 0)
+    {
+        restart(elementos);
+    }
+    elementos->nextWindow = FALSE;
 }
 
 
+void on_close (GtkDialog *dialog, gint response_id, gpointer userData)
+{
+  /* This will cause the dialog to be destroyed */
+  WIDGETS *elementos = (WIDGETS *)userData;
+  if(elementos->remove)
+  {
+    restart(elementos);
+  }
+  elementos->remove = FALSE;
+  gtk_widget_destroy(GTK_WIDGET(dialog));
+}
+
+
+//* Ventana para ver la inforamcion del programa
 void ventanaAcercaDe(GtkButton *boton, gpointer userData)
 {
     WIDGETS *elementos = (WIDGETS *)userData;
     GtkWidget *window2;
     const char *author[] = {"Sebastian Sedano", "Mauricio Olguín", "Santiago Zamora", '\0'};
-    gtk_timeout_remove(elementos->idTimer);
+    if(elementos->segundos > 0)
+    {
+        elementos->remove = TRUE;
+        gtk_timeout_remove(elementos->idTimer);
+    }
     window2 = gtk_about_dialog_new();
     
     gtk_window_set_default_size(GTK_WINDOW(window2), 300, 300);
@@ -580,15 +677,14 @@ void ventanaAcercaDe(GtkButton *boton, gpointer userData)
     gtk_about_dialog_set_documenters(GTK_ABOUT_DIALOG(window2), author);
     gtk_about_dialog_set_copyright(GTK_ABOUT_DIALOG(window2), "Copyright");
     
-
-    g_signal_connect_swapped(G_OBJECT(window2), "response", G_CALLBACK(gtk_widget_destroy), window2);
+    
+    g_signal_connect (GTK_DIALOG(window2), "response", G_CALLBACK (on_close), elementos);
 
     gtk_widget_show_all(window2);
     gtk_window_set_modal(GTK_WINDOW(window2), TRUE);
-    restart(elementos);
 }
 
-
+//* Pone los barcos de los 2 jugadores de forma aletoria
 void barcosPosition(GtkWidget *botones[7][7], GtkWidget *botonesJ2[7][7], WIDGETS *elementos)
 {
     const char *nombreSelecciones[20] = {"X0", "X1", "X2", "X3", "X4", "X5", "X6", "X7", "X8", "X9", 
@@ -598,8 +694,8 @@ void barcosPosition(GtkWidget *botones[7][7], GtkWidget *botonesJ2[7][7], WIDGET
     int x, y;
     for(int i = 0; i < 20; i++)
     {
-        x = rand() %6;
-        y = rand() %6;
+        x = rand() %7;
+        y = rand() %7;
         if(i <= 9)
         {
             nombre = strdup(gtk_widget_get_name(botones[x][y]));
@@ -657,34 +753,33 @@ void barcosPosition(GtkWidget *botones[7][7], GtkWidget *botonesJ2[7][7], WIDGET
 
 }
 
-
+//* Ventana para mostrar un dialogo, este dependera de que se haya presionado antes
 gboolean show_question(WIDGETS *elementos) {
     
-  GtkWidget *dialog, *window;
-  gint resp;
+    GtkWidget *dialog, *window;
+    gint resp;
+    char *message[] = {"¿Seguro quieres rescribir el archivo?, se perederan todos los datos actuales!!",
+                        "¿Seguro quieres salir?", "¿Quieres guardar la partida actual?", "Si quieres jugar otra partida presione el boton OK, de lo contrario presiona cancel"};
 
-  window = gtk_window_new(GTK_WINDOW_TOPLEVEL);
-  dialog = gtk_message_dialog_new(GTK_WINDOW(window),
-            GTK_DIALOG_DESTROY_WITH_PARENT,
-            GTK_MESSAGE_QUESTION,
-            GTK_BUTTONS_OK_CANCEL,
-            "Seguro quieres rescribir el archivo?, se perederan todos los datos actuales!!");
-  gtk_window_set_title(GTK_WINDOW(dialog), "Question");
-  resp = gtk_dialog_run(GTK_DIALOG(dialog));
-  if(resp == GTK_RESPONSE_OK)
-  {
-    g_print("yes\n");
-    gtk_widget_destroy(dialog);
-    return TRUE;
-  }else
-  {
-    g_print("no\n");
-    gtk_widget_destroy(dialog);
-    return FALSE;
-  }
+    window = gtk_window_new(GTK_WINDOW_TOPLEVEL);
+    dialog = gtk_message_dialog_new(GTK_WINDOW(window), GTK_DIALOG_DESTROY_WITH_PARENT, GTK_MESSAGE_QUESTION,GTK_BUTTONS_OK_CANCEL, message[elementos->question], NULL);
+    gtk_window_set_title(GTK_WINDOW(dialog), "Question");
+    resp = gtk_dialog_run(GTK_DIALOG(dialog));
+    if(resp == GTK_RESPONSE_OK)
+    {
+        g_print("yes\n");
+        gtk_widget_destroy(dialog);
+        return TRUE;
+    }else
+    {
+        g_print("no\n");
+        gtk_widget_destroy(dialog);
+        return FALSE;
+    }
   
 }
 
+//* Recuperar la inforamcion del archivo que se eligio, para recuperar una partida
 void recuperarPartida(gpointer userData)
 {
     
@@ -724,12 +819,13 @@ void recuperarPartida(gpointer userData)
     fp = fopen(elementos->fileName, "r");
     while(fgets(saveTemp, 10, fp) != NULL)
     {
+        arreglarHistorial(saveTemp);
         if(renglon < 28 || saveTemp[0] == 'X' || saveTemp[0] == 'Z')
         {
             ordenar(elementos, saveTemp, renglon);
         }else
         {
-            if(saveTemp[strlen(saveTemp) - 2] == 'T')
+            if(saveTemp[strlen(saveTemp) - 1] == 'T')
             {
                 cambiarNombre(saveTemp);
                 elementos->segundos = atoi(saveTemp);
@@ -738,7 +834,7 @@ void recuperarPartida(gpointer userData)
                 gtk_label_set_text(GTK_LABEL(elementos->eTiempo), textTime);
             }else
             {
-                arreglarHistorial(saveTemp);
+                g_print("H --> %s\n", saveTemp);
                 elementos->list = g_list_append(elementos->list, strdup(saveTemp));
             }
         }
@@ -755,7 +851,7 @@ void recuperarPartida(gpointer userData)
 
 }
 
-
+//* Acomodara la informacion leida del archivo elegido apra recuperar la partida
 void ordenar(WIDGETS *elementos, char *dato, int renglon)
 {
     int index;
@@ -792,16 +888,23 @@ void ordenar(WIDGETS *elementos, char *dato, int renglon)
             gtk_label_set_text(GTK_LABEL(elementos->eJugador2), strdup(dato)); 
             break;
         case 7:
-            if(strcmp("J1", dato) == 0)
+            if(elementos->gameMode == 0)
             {
                 elementos->turnoJ1 = TRUE;
                 elementos->turnoJ2 = FALSE;
-                g_print("\n1\n");
-            }else if(strcmp("J2", dato) == 0)
+            }else
             {
-                elementos->turnoJ1 = FALSE;
-                elementos->turnoJ2 = TRUE;
-                g_print("\n2\n");
+                if(strcmp("J1", dato) == 0)
+                {
+                    elementos->turnoJ1 = TRUE;
+                    elementos->turnoJ2 = FALSE;
+                    g_print("\n1\n");
+                }else if(strcmp("J2", dato) == 0)
+                {
+                    elementos->turnoJ1 = FALSE;
+                    elementos->turnoJ2 = TRUE;
+                    g_print("\n2\n");
+                }
             }
             break;
 
@@ -809,12 +912,12 @@ void ordenar(WIDGETS *elementos, char *dato, int renglon)
             break;
         }
 
-        if(renglon >= 8 && renglon <= 18)
+        if(renglon >= 8 && renglon <= 17)
         {
             elementos->seleccionJ1[renglon - 8] = strdup(dato);
-        }else if(renglon >= 19 && renglon <= 28)
+        }else if(renglon >= 18 && renglon <= 27)
         {
-            elementos->seleccionJ2[renglon - 19] = strdup(dato);
+            elementos->seleccionJ2[renglon - 18] = strdup(dato);
         }
 
     }else
@@ -869,9 +972,11 @@ void ordenar(WIDGETS *elementos, char *dato, int renglon)
                     
                     for(int k = 0; k < elementos->tirosTotal; k++)
                     {
+                        nameComp = strdup(g_list_nth_data(elementos->list, k));
                         if(nameComp[strlen(nameComp) - 1] == '2')
                         {
                             cambiarNombre(nameComp);
+                            //g_print("si lo encontro %s --> %s\n", realName, nameComp);
                             if(strcmp(realName, nameComp) == 0)
                             {
                                 notFound = TRUE;
@@ -896,6 +1001,8 @@ void ordenar(WIDGETS *elementos, char *dato, int renglon)
     }
 }
 
+
+//* Formatera los strings quitando el salto de linea
 void arreglarHistorial(char *palabra)
 {
     for(int i = 0; i < strlen(palabra); i++)
@@ -912,7 +1019,7 @@ void arreglarHistorial(char *palabra)
 }
 
 
-
+//* Ventana para escoger el nombre de los jugadores
 void escogerNombresJugadores(WIDGETS *elementos)
 {
     GtkWidget *windowNames, *aceptar, *cancelar, *etiqueta, *cajaV, *cajaH, *cajaH2, *cajaH3, *etiquetaJ1, *etiquetaJ2;
@@ -946,9 +1053,12 @@ void escogerNombresJugadores(WIDGETS *elementos)
     gtk_box_pack_start(GTK_BOX(cajaH), etiquetaJ1, FALSE, FALSE, 0);
     gtk_box_pack_start(GTK_BOX(cajaH), elementos->entryJugar1Name, TRUE, TRUE, 5);
     gtk_box_pack_start(GTK_BOX(cajaV), cajaH, FALSE, FALSE, 0);
-    gtk_box_pack_start(GTK_BOX(cajaH2), etiquetaJ2, FALSE, FALSE, 0);
-    gtk_box_pack_start(GTK_BOX(cajaH2), elementos->entryJugar2Name, TRUE, TRUE, 5);
-    gtk_box_pack_start(GTK_BOX(cajaV), cajaH2, FALSE, FALSE, 0); 
+    if(elementos->gameMode == 1)
+    {
+        gtk_box_pack_start(GTK_BOX(cajaH2), etiquetaJ2, FALSE, FALSE, 0);
+        gtk_box_pack_start(GTK_BOX(cajaH2), elementos->entryJugar2Name, TRUE, TRUE, 5);
+        gtk_box_pack_start(GTK_BOX(cajaV), cajaH2, FALSE, FALSE, 0); 
+    }
     gtk_box_pack_start(GTK_BOX(cajaH3), aceptar, FALSE, FALSE, 0);
     gtk_box_pack_start(GTK_BOX(cajaH3), cancelar, FALSE, FALSE, 0);
     gtk_box_pack_start(GTK_BOX(cajaV), cajaH3, FALSE, FALSE, 0);
@@ -956,34 +1066,74 @@ void escogerNombresJugadores(WIDGETS *elementos)
     gtk_widget_show_all(windowNames); 
 }
 
-
+//* Funcipn para validar que los nombres que se introducieron son validos
 void saveNames(GtkButton *boton, gpointer userData)
 {
     WIDGETS *elementos = (WIDGETS *)userData;
     elementos->nameJ1 = strdup(gtk_entry_get_text(GTK_ENTRY(elementos->entryJugar1Name)));
-    elementos->nameJ2 = strdup(gtk_entry_get_text(GTK_ENTRY(elementos->entryJugar2Name)));
     int numMensajeError;
     int lettersCount = 0;
     gboolean isValid = TRUE;
-    if(strlen(elementos->nameJ1) == 0 && strlen(elementos->nameJ2) > 0)
+    if(elementos->gameMode == 1)
     {
-        isValid = FALSE;
-        numMensajeError = 0;
-    }else if(strlen(elementos->nameJ2) == 0 && strlen(elementos->nameJ1) > 0)
-    {
-        isValid = FALSE;
-        numMensajeError = 1;
-    }else if(strlen(elementos->nameJ2) == 0 && strlen(elementos->nameJ1) == 0)
-    {
-        isValid = FALSE;
-        numMensajeError = 2;
-    }else
-    {
-        if(strcmp(elementos->nameJ1, elementos->nameJ2) == 0)
+        elementos->nameJ2 = strdup(gtk_entry_get_text(GTK_ENTRY(elementos->entryJugar2Name)));
+        if(strlen(elementos->nameJ1) == 0 && strlen(elementos->nameJ2) > 0)
         {
             isValid = FALSE;
-            numMensajeError = 3; 
-            
+            numMensajeError = 0;
+        }else if(strlen(elementos->nameJ2) == 0 && strlen(elementos->nameJ1) > 0)
+        {
+            isValid = FALSE;
+            numMensajeError = 1;
+        }else if(strlen(elementos->nameJ2) == 0 && strlen(elementos->nameJ1) == 0)
+        {
+            isValid = FALSE;
+            numMensajeError = 2;
+        }else
+        {
+            if(strcmp(elementos->nameJ1, elementos->nameJ2) == 0)
+            {
+                isValid = FALSE;
+                numMensajeError = 3; 
+                
+            }else
+            {
+                for(int i = 0; i < strlen(elementos->nameJ1); i++)
+                {
+                    if(elementos->nameJ1[i] >= 65 && elementos->nameJ1[i] < 91|| elementos->nameJ1[i] >= 97 && elementos->nameJ1[i] < 123)
+                    {
+                        lettersCount++;
+                    }
+                }
+                for(int i = 0; i < strlen(elementos->nameJ2); i++)
+                {
+                    if(elementos->nameJ2[i] >= 65 && elementos->nameJ2[i] < 91|| elementos->nameJ2[i] >= 97 && elementos->nameJ2[i] < 123)
+                    {
+                        lettersCount++;
+                        g_print(" -R++ %d\n", elementos->nameJ2[i]);
+                    }
+                }
+
+                if(lettersCount >= 2)
+                {
+                    isValid = TRUE;
+                }else
+                {
+                    isValid = FALSE;
+                    numMensajeError = 4;
+                }
+            }
+        }
+    }else if(elementos->gameMode == 0)
+    {
+        if(strlen(elementos->nameJ1) == 0)
+        {
+            isValid = FALSE;
+            numMensajeError = 0;
+        }else if(strcmp(elementos->nameJ1, "CPU") == 0)
+        {
+            isValid = FALSE;
+            numMensajeError = 4; 
         }else
         {
             for(int i = 0; i < strlen(elementos->nameJ1); i++)
@@ -992,17 +1142,8 @@ void saveNames(GtkButton *boton, gpointer userData)
                 {
                     lettersCount++;
                 }
-            }
-            for(int i = 0; i < strlen(elementos->nameJ2); i++)
-            {
-                if(elementos->nameJ2[i] >= 65 && elementos->nameJ2[i] < 91|| elementos->nameJ2[i] >= 97 && elementos->nameJ2[i] < 123)
-                {
-                    lettersCount++;
-                    g_print(" -R++ %d\n", elementos->nameJ2[i]);
-                }
-            }
-
-            if(lettersCount >= 2)
+            } 
+            if(lettersCount >= 1)
             {
                 isValid = TRUE;
             }else
@@ -1012,8 +1153,6 @@ void saveNames(GtkButton *boton, gpointer userData)
             }
         }
     }
-
-
     if(!isValid)
     {
         dialogWarning(elementos, numMensajeError);
@@ -1022,21 +1161,30 @@ void saveNames(GtkButton *boton, gpointer userData)
         elementos->nextWindow = TRUE;
         gtk_widget_destroy(elementos->ventana);
         gtk_widget_destroy(elementos->windowFile);
-        jugador1VsJugador2(elementos->nameJ1, elementos->nameJ2);
+        if(elementos->gameMode == 0)
+        {
+            jugador1VsCpu(elementos->nameJ1);
+        }else if(elementos->gameMode == 1)
+        {
+            jugador1VsJugador2(elementos->nameJ1, elementos->nameJ2);
+        }
     }
 } 
 
+//* recibe la informacion de la ventana de elegir nombres
 void cancelWindowName(GtkButton *boton, gpointer userData)
 {
     WIDGETS *elementos = (WIDGETS *)userData;
     gtk_widget_destroy(elementos->windowFile);
+    
 }
 
+//* ventan para mostrar dialogo de error con los nombres
 void dialogWarning(WIDGETS *elementos, int numMensajeError)
 {
     GtkWidget *windowError, *errorDialog;
-    const char *listaMensajesErrores[5] = {"El nombre del Jugador1 NO es VALIDO!\n", "El nombre del Jugador2 NO es VALIDO!\n", 
-                            "El nombre de ambos NO son VALIDOS!\n", "Los jugadores NO pueden tener nombre IDENTICOS!!\n", "No se ingreso como MINIMO Una LETRA en los nombres\n"};
+    const char *listaMensajesErrores[6] = {"El nombre del Jugador1 NO es VALIDO!\n", "El nombre del Jugador2 NO es VALIDO!\n", 
+                            "El nombre de ambos NO son VALIDOS!\n", "Los jugadores NO pueden tener nombre IDENTICOS!!\n", "No se ingreso como MINIMO Una LETRA en los nombres\n", "No pueden tener el mismo nombre la computadora y el jugador\n"};
     gint resp;
     windowError = gtk_window_new(GTK_WINDOW_TOPLEVEL);
     errorDialog = gtk_message_dialog_new(GTK_WINDOW(windowError), GTK_DIALOG_MODAL, GTK_MESSAGE_ERROR, GTK_BUTTONS_OK, listaMensajesErrores[numMensajeError], NULL);
@@ -1049,7 +1197,7 @@ void dialogWarning(WIDGETS *elementos, int numMensajeError)
     } 
 }
 
-
+//* funcion para llevar la cuneta del timer
 gint timer(gpointer data)
 {
     WIDGETS *elementos = (WIDGETS *) data;
@@ -1063,9 +1211,203 @@ gint timer(gpointer data)
     return 1;
 }
 
+//* fucnion para resetear el timer
 void restart(WIDGETS *elementos)
 {
     g_print("\nentro\n");
     elementos->idTimer = gtk_timeout_add(1000, timer, elementos);
+}
+
+//* Crear un juego nuevo 
+void crearJuegoNuevo(GtkButton *boton, gpointer userData)
+{
+    WIDGETS *elementos = (WIDGETS *)userData;
+    elementos->nextWindow = TRUE;
+    gtk_timeout_remove(elementos->idTimer);
+    gtk_widget_destroy(elementos->ventana);
+    if(elementos->gameMode == 0)
+    {
+       jugador1VsCpu(elementos->nameJ1);
+    }else
+    {
+        jugador1VsJugador2(elementos->nameJ1, elementos->nameJ2);
+    }
+    
+}
+
+
+void dialogWinner(WIDGETS *elementos, int jugador)
+{
+    GtkWidget *windowError, *errorDialog;
+    char mensaje[100] = "Felicidades, gano el jugador ";
+    gint resp;
+    windowError = gtk_window_new(GTK_WINDOW_TOPLEVEL);
+    if(jugador == 0)
+    {
+
+        strcat(mensaje, elementos->nameJ1);
+        g_print("a");
+        errorDialog = gtk_message_dialog_new(GTK_WINDOW(windowError), GTK_DIALOG_MODAL, GTK_MESSAGE_INFO, GTK_BUTTONS_OK, mensaje, NULL);
+        saveScoreBoard(elementos->nameJ1, elementos->segundos);
+    }else if(jugador == 1)
+    {
+        strcat(mensaje, elementos->nameJ2);
+        errorDialog = gtk_message_dialog_new(GTK_WINDOW(windowError), GTK_DIALOG_MODAL, GTK_MESSAGE_INFO, GTK_BUTTONS_OK, mensaje, NULL);
+        saveScoreBoard(elementos->nameJ1, elementos->segundos);
+    }else if(jugador == 2)
+    {
+        strcpy(mensaje, "EMPATARON!!");
+        errorDialog = gtk_message_dialog_new(GTK_WINDOW(windowError), GTK_DIALOG_MODAL, GTK_MESSAGE_INFO, GTK_BUTTONS_OK, mensaje, NULL);
+    }
+    
+    gtk_widget_show_all(errorDialog);
+    resp = gtk_dialog_run(GTK_DIALOG(errorDialog));
+    
+    if(resp == GTK_RESPONSE_OK)
+    {
+        gtk_widget_destroy(errorDialog);
+        elementos->question = 3;
+        elementos->segundos = 0;
+        if(show_question(elementos))
+        {
+            crearJuegoNuevo(NULL, elementos); 
+        }else
+        {
+            elementos->nextWindow = TRUE;
+            gtk_widget_destroy(elementos->ventana);
+            menuPrincipal();
+        }
+    } 
+}
+
+
+void saveScoreBoard(char *nombre, int tiempo)
+{
+    char datos[20];
+    MARCADORES *inicio, *aux;
+    FILE *fp;
+    char nombreJugador[8];
+    int tiempoFinal;
+    inicio = NULL;
+    
+    fp = fopen("scores.txt", "a");
+    fprintf(fp, "\n%s %d", nombre, tiempo);
+    fclose(fp);
+
+
+    fp = fopen("scores.txt", "r");
+    while(fgets(datos, 20, fp) != NULL)
+    {
+        sscanf(datos, "%s %d", nombreJugador, &tiempoFinal);
+        create_list(&inicio, &aux, nombreJugador, tiempoFinal);
+    }
+    fclose(fp);
+    ordenarMarcadores(inicio);
+    reescribir_archivo(inicio);
+    liberarMemorial(inicio);
+}
+
+void create_list(MARCADORES **inicio, MARCADORES **aux, char *nombre, int tiempo)
+{
+    MARCADORES *nodo;
+    nodo = malloc(sizeof(MARCADORES));
+    if(nodo == NULL)
+    {
+        printf("ERROR: No hay memoria disponible\n");
+        exit(1);
+    }
+
+
+    nodo->nombre =  strdup(nombre);
+    nodo->tiempoFinal = tiempo;
+    if(*inicio == NULL)
+    {
+        *inicio = nodo;
+    }else
+    {
+        (*aux) -> sig = nodo;
+
+    }
+    (*aux) = nodo;
+    nodo -> sig = NULL;
+
+}
+
+
+void ordenarMarcadores(MARCADORES *incio)
+{
+    MARCADORES *nodo, *nodo2;
+
+    char *temp;
+    int num_temp;
+
+    nodo = incio;
+    nodo2 = nodo -> sig;
+
+    do
+    {
+
+        while (nodo2 != NULL)
+        {
+            if(nodo -> tiempoFinal > nodo2 -> tiempoFinal)
+            {
+                temp = nodo -> nombre;
+                num_temp = nodo -> tiempoFinal;
+
+                nodo -> nombre = nodo2 -> nombre;
+                nodo -> tiempoFinal = nodo2 -> tiempoFinal;
+
+                nodo2 -> tiempoFinal = num_temp;
+                nodo2 -> nombre = temp;
+            }
+            nodo2 = nodo2 -> sig;
+        }
+
+        nodo = nodo -> sig;
+        if(nodo != NULL)
+        {
+            nodo2 = nodo -> sig;
+        }
+        
+    }while(nodo != NULL);
+    
+}
+
+
+
+void reescribir_archivo(MARCADORES *inicio)
+{
+    MARCADORES *nodo;
+    FILE *fp;
+    int count = 0;
+    fp = fopen("scores.txt", "w");
+
+    nodo = inicio;
+    while (nodo != NULL)
+    {
+        if(count == 5)
+        {
+            break;
+        }
+        fprintf(fp, "%s %d\n", nodo->nombre, nodo->tiempoFinal);
+        g_print("%s %d\n", nodo->nombre, nodo->tiempoFinal);
+        nodo = nodo -> sig;
+        count++;
+    }
+    fclose(fp);
+}
+
+
+void liberarMemorial(MARCADORES *inicio)
+{
+    MARCADORES *nodo;
+    nodo = inicio;
+    while (nodo != NULL)
+    {
+        inicio = nodo->sig;
+        free(nodo);
+        nodo = inicio;
+    }
+    g_print("fin");
 }
 //! FIN ---> Funciones Genearles
