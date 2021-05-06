@@ -20,6 +20,8 @@ extern void ventanaAcercaDe(GtkButton *boton, gpointer userData);
 extern void escogerNombresJugadores(WIDGETS *elementos);
 extern gint timer(gpointer data);
 extern void restart(WIDGETS *elementos);
+extern void crearJuegoNuevo(GtkButton *boton, gpointer userData);
+extern void dialogWinner(WIDGETS *elementos, int jugador);
 //* FIN --> FUNCIONES GENERALES
 
 
@@ -42,9 +44,10 @@ void jugador1VsJugador2(char *nombreJ1, char *nombreJ2)
 {
     //declarar variables
     GtkWidget *ventana, *cajaVertical, *tabla, *cajaHorizontal1, *cajaHorizontal2, *cajaH3, *botones[7][7], *botonesj2[7][7],*separador, *cajaV, *juegoNuevo, *cajaH6, *eTiempo;
-    GtkWidget *menuBar, *fileItem, *fileMenu, *quitItem, *ayudaItem, *acercaDe, *ayudaMenu, *menubarAyuda, *tablero2, *etiquetaJ1, *etiquetaJ2, *cajaH5, *toolBar;
-    GtkWidget *botonAtras, *botonAdelante, *cajaH4, *guardar, *deshacer, *rehacer, *guardarEnNuevoArchivo, *recuperar ,*herramientas, *herramientasMenu, *statusBar;
+    GtkWidget *menuBar, *fileItem, *fileMenu, *quitItem, *ayudaItem, *acercaDe, *ayudaMenu, *menubarAyuda, *tablero2, *etiquetaJ1, *etiquetaJ2, *cajaH5, *toolBar, *comoJugar;
+    GtkWidget *botonAtras, *botonAdelante, *cajaH4, *guardar, *deshacer, *rehacer, *guardarEnNuevoArchivo, *recuperar ,*herramientas, *herramientasMenu, *statusBar, *icon;
     GtkToolItem *toolNg, *toolSalir, *toolSv;
+    GtkTooltips *toolTips;
     GList *listD = NULL;
     GdkColor colorJ1, colorJ2;
     char mensaje[100] = "(Tiros- Barcos Hundidos)|| ";
@@ -84,6 +87,8 @@ void jugador1VsJugador2(char *nombreJ1, char *nombreJ2)
     cajaH5 = gtk_hbox_new(FALSE, 5);
     cajaH6 = gtk_hbox_new(FALSE, 5);
     eTiempo = gtk_label_new("Tiempo: 0s");
+    toolTips = gtk_tooltips_new();
+    icon = gtk_image_new_from_file("toolbar/filefloppy.xpm");
     
     
     
@@ -103,8 +108,10 @@ void jugador1VsJugador2(char *nombreJ1, char *nombreJ2)
     ayudaItem = gtk_menu_item_new_with_label("Ayuda");
     ayudaMenu = gtk_menu_new(); 
     acercaDe = gtk_menu_item_new_with_label("Acerca de");
+    comoJugar =  gtk_menu_item_new_with_label("Como Jugar");
     recuperar = gtk_menu_item_new_with_label("Recuperar");
     juegoNuevo = gtk_image_menu_item_new_from_stock(GTK_STOCK_NEW, NULL);
+    
 
     //ToolBar
     toolBar = gtk_toolbar_new();
@@ -114,6 +121,12 @@ void jugador1VsJugador2(char *nombreJ1, char *nombreJ2)
     gtk_toolbar_insert(GTK_TOOLBAR(toolBar), toolNg, 0);
     gtk_toolbar_insert(GTK_TOOLBAR(toolBar), toolSv, 1);
     gtk_toolbar_insert(GTK_TOOLBAR(toolBar), toolSalir, 2);
+
+    gtk_tooltips_set_tip(GTK_TOOLTIPS(toolTips), GTK_WIDGET(toolNg), "Nuevo Juego", NULL);
+    gtk_tooltips_set_tip(GTK_TOOLTIPS(toolTips), GTK_WIDGET(toolSv), "Guardar", NULL);
+    gtk_tooltips_set_tip(GTK_TOOLTIPS(toolTips), GTK_WIDGET(toolSalir), "Salir", NULL);
+    
+
 
 
 
@@ -135,18 +148,22 @@ void jugador1VsJugador2(char *nombreJ1, char *nombreJ2)
     elementos->guardarNuevoArchivo = guardarEnNuevoArchivo;
     elementos->ventana = ventana;
     elementos->nextWindow = FALSE;
+    g_print("%s\n", nombreJ2);
     elementos->nameJ1 = strdup(nombreJ1);
     elementos->nameJ2 = strdup(nombreJ2);
+    g_print("%s\n", elementos->nameJ2);
     elementos->turnoJ1 = TRUE;
     elementos->turnoJ2 = FALSE;
-    elementos->tirosTotalJ1 = 0;
-    elementos->tirosTotalJ2 = 0;
+    elementos->tirosTotalJ1 = 10;
+    elementos->tirosTotalJ2 = 10;
     elementos->eJugador1 = etiquetaJ1;
     elementos->eJugador2 = etiquetaJ2;
     elementos->statusBar = statusBar;
     elementos->eTiempo = eTiempo;
     elementos->segundos = 0;
-    elementos->remove = FALSE;  
+    elementos->remove = FALSE;
+    elementos->saveAndQuit = FALSE;
+    elementos->numVentan = 2;
 
 
     for(int i = 0; i < 7; i++)
@@ -164,9 +181,9 @@ void jugador1VsJugador2(char *nombreJ1, char *nombreJ2)
     }
 
     strcat(mensaje, strdup(elementos->nameJ1));
-    strcat(mensaje, " 0-0    ||");
+    strcat(mensaje, " 10-0    ||");
     strcat(mensaje, strdup(elementos->nameJ2));
-    strcat(mensaje, " 0-0");
+    strcat(mensaje, " 10-0");
 
     
    
@@ -218,6 +235,7 @@ void jugador1VsJugador2(char *nombreJ1, char *nombreJ2)
     
     
 
+    
 
 
     //4. Definir jerarquía del programa.
@@ -235,8 +253,9 @@ void jugador1VsJugador2(char *nombreJ1, char *nombreJ2)
     gtk_menu_item_set_submenu(GTK_MENU_ITEM(herramientas), herramientasMenu);
     gtk_menu_bar_append(GTK_MENU_BAR(menuBar), herramientas);
     gtk_menu_shell_append(GTK_MENU_SHELL(ayudaMenu), acercaDe);
+    gtk_menu_shell_append(GTK_MENU_SHELL(ayudaMenu), comoJugar);
     gtk_menu_item_set_submenu(GTK_MENU_ITEM(ayudaItem), ayudaMenu);
-    gtk_menu_bar_append(GTK_MENU_BAR(menuBar), ayudaItem);
+    gtk_menu_bar_append(GTK_MENU_BAR(menuBar), ayudaItem);   
 
     //Botones
     for(int i = 0; i < 7; i++)
@@ -282,13 +301,9 @@ void clickTablero(GtkButton *boton, gpointer userData)
     char *nombre = strdup(gtk_widget_get_name(GTK_WIDGET(boton)));
     char *tiro;
     int index;
-    char mensaje[100] = "El jugador ";
+    char mensaje[100] = "(Tiros- Barcos Hundidos)|| ";
+    char text_res[sizeof(int) *4 + 1];
     GdkColor color;
-    /*for(int i = 0; i < elementos->tirosTotal; i++)
-    {
-        g_print("H: ----> %s ---> ", g_list_nth_data(elementos->list, i));
-        g_print("\n");
-    }*/
 
     if(elementos->segundos == 0)
     {
@@ -301,21 +316,17 @@ void clickTablero(GtkButton *boton, gpointer userData)
     gtk_widget_set_sensitive(GTK_WIDGET(elementos->deshacer), TRUE);
     g_print("C.- %c\n", nombre[0]);
     g_print("E: %d ----> I: %d\n", elementos->tirosTotal, index);
-
     if(elementos->turnoJ1)
     {
-        strcat(mensaje, strdup(elementos->nameJ1));
-        strcat(mensaje, " disparo en ");
         if(nombre[0] == 'X')
         {
             index = nombre[1] - '0';
             g_print("I: %d\n", index);
             elementos->tirosJ1 ++;
+            elementos->tirosTotalJ2 --;
             gdk_color_parse("red", &color);
             tiro =  strdup(elementos->seleccionJ1[index]);
             gtk_widget_set_name(GTK_WIDGET(boton), elementos->seleccionJ1[index]);
-            strcat(mensaje, tiro);
-            strcat(mensaje, " y acerto en un barco");
             strcat(tiro, "*R");
             
         }else
@@ -326,26 +337,21 @@ void clickTablero(GtkButton *boton, gpointer userData)
             elementos->turnoJ2 = TRUE;
             gtk_widget_set_sensitive(GTK_WIDGET(elementos->tb1), FALSE);
             gtk_widget_set_sensitive(GTK_WIDGET(elementos->tb2), TRUE);
-            strcat(mensaje, tiro);
-            strcat(mensaje, " y no acerto en nada!");
             strcat(tiro, "*B");
         }
         strcat(tiro, "1");
-        elementos->tirosTotalJ1++;
+        elementos->tirosTotalJ1--;
     }else if(elementos->turnoJ2)
     {
-        strcat(mensaje, strdup(elementos->nameJ2));
-        strcat(mensaje, " presiono el boton ");
         if(nombre[0] == 'Z')
         {
             index = nombre[1] - '0';
-            elementos->tirosJ2 += 1;
+            elementos->tirosJ2 ++;
+            elementos->tirosTotalJ1 --;
             gdk_color_parse("red", &color);
             tiro = strdup(elementos->seleccionJ2[index]);
             gtk_widget_set_name(GTK_WIDGET(boton), elementos->seleccionJ2[index]);
             g_print("click en %s\n", tiro);
-            strcat(mensaje, tiro);
-            strcat(mensaje, " y acerto en un barco");
             gtk_widget_set_name(GTK_WIDGET(boton), elementos->seleccionJ2[index]);
             strcat(tiro, "*R");
         }else
@@ -357,13 +363,28 @@ void clickTablero(GtkButton *boton, gpointer userData)
             elementos->turnoJ2 = FALSE;
             gtk_widget_set_sensitive(GTK_WIDGET(elementos->tb1), TRUE);
             gtk_widget_set_sensitive(GTK_WIDGET(elementos->tb2), FALSE);
-            strcat(mensaje, tiro);
-            strcat(mensaje, " y no acerto en nada, mala suerte!!");
             strcat(tiro, "*B");
         }
         strcat(tiro, "2");
-        elementos->tirosTotalJ2++;
+        elementos->tirosTotalJ2--;
     }
+    strcat(mensaje, "Jugador ");
+    strcat(mensaje, strdup(elementos->nameJ1));
+    sprintf(text_res, "%d", elementos->tirosTotalJ1);
+    strcat(mensaje, " ");
+    strcat(mensaje, text_res);
+    strcat(mensaje, "-");
+    sprintf(text_res, "%d", elementos->tirosJ1);
+    strcat(mensaje, text_res);
+    strcat(mensaje, "|| ");
+    strcat(mensaje, "Jugador ");
+    strcat(mensaje, strdup(elementos->nameJ2));
+    sprintf(text_res, "%d", elementos->tirosTotalJ2);
+    strcat(mensaje, " ");
+    strcat(mensaje, text_res);
+    strcat(mensaje, "-");
+    sprintf(text_res, "%d", elementos->tirosJ2);
+    strcat(mensaje, text_res); 
     gtk_statusbar_push(GTK_STATUSBAR(elementos->statusBar), 0, mensaje);
     g_print("click en %s --> %s\n", tiro,  gtk_widget_get_name(GTK_WIDGET(boton)));
     elementos->tirosTotal += 1;
@@ -373,20 +394,21 @@ void clickTablero(GtkButton *boton, gpointer userData)
     elementos->list = g_list_append(elementos->list, tiro);
     gtk_widget_set_sensitive(GTK_WIDGET(elementos->bAtras), TRUE);
 
-    if(elementos->tirosJ1 == 10 || elementos->tirosJ2 == 10 || elementos->tirosTotal == 98)
+    if(elementos->tirosJ1 == 10)
     {
-        gtk_widget_hide_all(elementos->ventana);
-        g_print("SIIIII\n");
+        g_print("gano el jugador 1\n");
+        gtk_timeout_remove(elementos->idTimer);
+        dialogWinner(elementos, 0);
+    }else if(elementos->tirosJ2 == 10)
+    {
+        g_print("gano el jugador 2\n");
+        gtk_timeout_remove(elementos->idTimer);
+        dialogWinner(elementos, 1);
+    }else if(elementos->tirosTotalJ1 == 0 && elementos->tirosTotalJ2 == 0)
+    {
+        g_print("empataron\n");
+        gtk_timeout_remove(elementos->idTimer);
+        dialogWinner(elementos, 2);
     }
 }
-
-void crearJuegoNuevo(GtkButton *boton, gpointer userData)
-{
-    WIDGETS *elementos = (WIDGETS *)userData;
-    elementos->nextWindow = TRUE;
-    gtk_timeout_remove(elementos->idTimer);
-    gtk_widget_destroy(elementos->ventana);
-    jugador1VsJugador2(elementos->nameJ1, elementos->nameJ2);
-}
-
 //! FUNCIONES --> VENTANA TABLERO
