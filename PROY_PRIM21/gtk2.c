@@ -71,7 +71,7 @@ void menuPrincipal(void)
     g_signal_connect(G_OBJECT(window), "delete_event", G_CALLBACK(delete_event_handler), NULL);
     g_signal_connect(G_OBJECT(window), "destroy", G_CALLBACK(salir), elementos);
     g_signal_connect(G_OBJECT(botonJugar), "clicked", G_CALLBACK(botonClick), elementos);
-    g_signal_connect(G_OBJECT(botonSalir), "clicked", G_CALLBACK(salir), NULL);
+    g_signal_connect(G_OBJECT(botonSalir), "clicked", G_CALLBACK(salir), elementos);
     g_signal_connect(G_OBJECT(botonJugarVsCpu), "clicked", G_CALLBACK(clickJugar), elementos);
     g_signal_connect(G_OBJECT(botonJugar2), "clicked", G_CALLBACK(clickJugar), elementos);
     g_signal_connect(G_OBJECT(botonMarcadores), "clicked", G_CALLBACK(goToScores), elementos);
@@ -118,6 +118,7 @@ void clickJugar(GtkButton *boton, gpointer userData)
     {
         elementos->gameMode = 1;
     }
+    g_print("aa");
     escogerNombresJugadores(elementos);
 }
 
