@@ -1,11 +1,16 @@
 #include "local.h"
 
-
+//* INICIO --> FUNCIONES GENERALES
 extern void menuPrincipal(void);
+//* FIN --> FUNCIONES GENERALES
 
 
+//* INICIO --> FUNCIONES INTERNAS
 void goBack(GtkButton *boton, gpointer userData);
+//* FIN --> FUNCIONES INTERNAS
 
+
+//* Ventan de marcadores
 void marcadores(void)
 {
     
@@ -21,7 +26,6 @@ void marcadores(void)
     elementos = malloc(sizeof(WIDGETS));
     elementos->nextWindow = TRUE;
    
-    
 
     ventana = gtk_window_new(GTK_WINDOW_TOPLEVEL);
     etiqueta = gtk_label_new("MARCADORES");
@@ -94,6 +98,7 @@ void marcadores(void)
     gtk_widget_show_all(ventana);
 }
 
+//* Funcion que regresa al menu principal
 void goBack(GtkButton *boton, gpointer userData)
 {
     WIDGETS *elementos = (WIDGETS *)userData;
