@@ -22,6 +22,7 @@ extern gint timer(gpointer data);
 extern void restart(WIDGETS *elementos);
 extern void crearJuegoNuevo(GtkButton *boton, gpointer userData);
 extern void dialogWinner(WIDGETS *elementos, int jugador);
+extern void ayuda(GtkButton *boton, gpointer userData);
 //* FIN --> FUNCIONES GENERALES
 
 
@@ -164,6 +165,9 @@ void jugador1VsJugador2(char *nombreJ1, char *nombreJ2)
     elementos->remove = FALSE;
     elementos->saveAndQuit = FALSE;
     elementos->numVentan = 2;
+    elementos->toolSv = toolSv;
+    elementos->gameMode = 1;
+    elementos->start = FALSE;
 
 
     for(int i = 0; i < 7; i++)
@@ -198,6 +202,7 @@ void jugador1VsJugador2(char *nombreJ1, char *nombreJ2)
     gtk_widget_set_sensitive(GTK_WIDGET(deshacer), FALSE);
     gtk_widget_set_sensitive(GTK_WIDGET(rehacer), FALSE);
     gtk_widget_set_sensitive(GTK_WIDGET(guardar), FALSE);
+    gtk_widget_set_sensitive(GTK_WIDGET(toolSv), FALSE);
     gtk_widget_set_sensitive(GTK_WIDGET(elementos->guardarNuevoArchivo), FALSE);
     gtk_widget_set_name(GTK_WIDGET(guardar), "Guardar");
     gtk_menu_item_right_justify(GTK_MENU_ITEM(ayudaItem));
@@ -218,6 +223,7 @@ void jugador1VsJugador2(char *nombreJ1, char *nombreJ2)
     g_signal_connect(G_OBJECT(recuperar), "activate", G_CALLBACK(fileChooser), elementos);
     g_signal_connect(G_OBJECT(guardarEnNuevoArchivo), "activate", G_CALLBACK(createFile), elementos);
     g_signal_connect(G_OBJECT(acercaDe), "activate", G_CALLBACK(ventanaAcercaDe), elementos);
+    g_signal_connect(G_OBJECT(comoJugar), "activate", G_CALLBACK(ayuda), elementos);
     g_signal_connect(G_OBJECT(botonAtras), "clicked", G_CALLBACK(atras), elementos);
     g_signal_connect(G_OBJECT(botonAdelante), "clicked", G_CALLBACK(adelante), elementos);
     g_signal_connect(G_OBJECT(juegoNuevo), "activate", G_CALLBACK(crearJuegoNuevo), elementos);
@@ -295,6 +301,8 @@ void jugador1VsJugador2(char *nombreJ1, char *nombreJ2)
 
 
 //! FUNCIONES --> VENTANA TABLERO
+    //* Recibe la señal del click del boton en la tabla,
+    //* y validara si el boton es un barco o no, tambien hara el tiro de la computadora
 void clickTablero(GtkButton *boton, gpointer userData)
 {
     WIDGETS *elementos = (WIDGETS *)userData;
@@ -305,15 +313,16 @@ void clickTablero(GtkButton *boton, gpointer userData)
     char text_res[sizeof(int) *4 + 1];
     GdkColor color;
 
-    if(elementos->segundos == 0)
+    if(!elementos->start)
     {
-        g_print("start\n");
         elementos->idTimer = gtk_timeout_add(1000, timer, elementos);
+        elementos->start = TRUE;
     }
 
     gtk_widget_set_sensitive(GTK_WIDGET(elementos->guardar), TRUE);
     gtk_widget_set_sensitive(GTK_WIDGET(elementos->guardarNuevoArchivo), TRUE);
     gtk_widget_set_sensitive(GTK_WIDGET(elementos->deshacer), TRUE);
+    gtk_widget_set_sensitive(GTK_WIDGET(elementos->toolSv), TRUE);
     g_print("C.- %c\n", nombre[0]);
     g_print("E: %d ----> I: %d\n", elementos->tirosTotal, index);
     if(elementos->turnoJ1)
@@ -404,7 +413,7 @@ void clickTablero(GtkButton *boton, gpointer userData)
         g_print("gano el jugador 2\n");
         gtk_timeout_remove(elementos->idTimer);
         dialogWinner(elementos, 1);
-    }else if(elementos->tirosTotalJ1 == 0 && elementos->tirosTotalJ2 == 0)
+    }else if(elementos->tirosTotalJ1 == 0 || elementos->tirosTotalJ2 == 0)
     {
         g_print("empataron\n");
         gtk_timeout_remove(elementos->idTimer);
