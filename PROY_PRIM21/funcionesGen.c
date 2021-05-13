@@ -41,6 +41,7 @@ void create_list(MARCADORES **inicio, MARCADORES **aux, char *nombre, int tiempo
 void ordenarMarcadores(MARCADORES *incio);
 void reescribir_archivo(MARCADORES *inicio);
 void liberarMemorial(MARCADORES *inicio);
+void ayuda(GtkButton *boton, gpointer userData);
 //* FIN --> FUNCIONES INTERNA
 
 
@@ -55,10 +56,9 @@ gboolean delete_event_handler(GtkWidget *widget, gpointer userData)
 void salir(GtkWidget *widget, gpointer userData)
 {
     WIDGETS *elementos = (WIDGETS *)userData;
-
-     
     if(!elementos->nextWindow) 
     {
+        g_print("SALIDA");
         if(elementos->numVentan == 2)
         {
             g_list_free(elementos->list);
@@ -134,20 +134,16 @@ void saveHistory(GtkButton *boton, gpointer userData)
         
         if(fp != NULL)
         {
-            fclose(fp);
-            g_print("2si paso\n");
             elementos->question = 0;
             if(!show_question(elementos))
             {
                 elementos->nextWindow = FALSE;
-                //gtk_widget_destroy(elementos->windowFile);
                 return;
             }
             g_print("si paso\n");
         }
-        
+        fclose(fp);
         g_print("si paso\n");
-
     }
     g_print("CORRECTO GUARDAR H: ---> %s\n", elementos->fileName);
     
@@ -228,7 +224,8 @@ void saveHistory(GtkButton *boton, gpointer userData)
 
     }else if(elementos->saveNewFile)
     {
-        elementos->nextWindow = FALSE;
+        g_print("NUEVO");
+        elementos->nextWindow = TRUE;
         gtk_widget_destroy(elementos->windowFile);
         restart(elementos);
     }
@@ -275,7 +272,7 @@ void fileChooser(GtkButton *boton, gpointer userData)
         if(resp == GTK_RESPONSE_OK)
         {
             g_print("R: %d\n", resp);
-            elementos-> fileName = strdup(gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(dialog)));
+            elementos->fileName = strdup(gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(dialog)));
             g_print("%s\n", elementos-> fileName);
             if(elementos-> fileName[strlen(elementos-> fileName) - 1] == 'n' && elementos-> fileName[strlen(elementos-> fileName) - 2] == 't' && elementos-> fileName[strlen(elementos-> fileName) - 3] == 'b')
             {
@@ -309,8 +306,11 @@ void fileChooser(GtkButton *boton, gpointer userData)
     
     gtk_widget_destroy(GTK_WIDGET(dialog));
     if(!recoveryMode)
-    {
-        restart(elementos);
+    { 
+        if(elementos->segundos > 0)
+        {
+            restart(elementos);
+        }
     }
     gtk_statusbar_push(GTK_STATUSBAR(elementos->statusBar), 0, "Esperando al siguiente tiro");
    
@@ -344,7 +344,6 @@ void atras(GtkButton *boton, gpointer userData)
     gtk_widget_set_sensitive(GTK_WIDGET(elementos->rehacer), TRUE);
     gtk_widget_set_sensitive(GTK_WIDGET(elementos->tb1), FALSE);
     gtk_widget_set_sensitive(GTK_WIDGET(elementos->tb2), FALSE);
-    g_print("NN: %s--->%c", nombre, nombre[strlen(nombre) - 1]);
 
     if(nombre[strlen(nombre) - 1] == '2')
     {
@@ -354,10 +353,8 @@ void atras(GtkButton *boton, gpointer userData)
             for(int j = 0; j < 7; j++)
             {
                 nombreCompare = strdup(gtk_widget_get_name(elementos->botonesTb2[i][j]));
-                g_print("NS: %s ---- %s\n", nombre, nombreCompare);
                 if(strcmp(nombre, nombreCompare) == 0)
                 {
-                    g_print("SI ENCONTRO 2\n");
                     gtk_widget_modify_bg(elementos->botonesTb2[i][j], GTK_STATE_INSENSITIVE, NULL);
                     break;
                 }
@@ -371,10 +368,8 @@ void atras(GtkButton *boton, gpointer userData)
             for(int j = 0; j < 7; j++)
             {
                 nombreCompare = strdup(gtk_widget_get_name(elementos->botonesTb1[i][j]));
-                g_print("NS: %s ---- %s\n", nombre, nombreCompare);
                 if(strcmp(nombre, nombreCompare) == 0)
                 {
-                    g_print("SI ENCONTRO 1\n");
                     gtk_widget_modify_bg(elementos->botonesTb1[i][j], GTK_STATE_INSENSITIVE, NULL);
                     break;
                 }
@@ -384,7 +379,8 @@ void atras(GtkButton *boton, gpointer userData)
     
     if(elementos->numAtras == 0)
     {
-      gtk_widget_set_sensitive(GTK_WIDGET(boton), FALSE);  
+      gtk_widget_set_sensitive(GTK_WIDGET(boton), FALSE);
+      gtk_widget_set_sensitive(GTK_WIDGET(elementos->deshacer), FALSE); 
     }
 }
 
@@ -466,13 +462,13 @@ void adelante(GtkButton *boton, gpointer userData)
         g_print("\nPLAYER\n");
         is1Player = TRUE;
     }
+
     if(name[strlen(name) - 2] == 'R')
     {
         gdk_color_parse("red", &color);
     }
 
     cambiarNombre(name);
-    g_print("%s|\n%s|", name, gtk_widget_get_name(elementos->botonesTb1[6][6]));
     for(int i = 0; i < 7; i++)
     {
         for(int j = 0; j < 7; j++)
@@ -490,7 +486,6 @@ void adelante(GtkButton *boton, gpointer userData)
             }else 
             {
                 nameComp = strdup(gtk_widget_get_name(elementos->botonesTb2[i][j]));
-               
                 if(strcmp(name, nameComp) == 0)
                 {
                     gtk_widget_modify_bg(elementos->botonesTb2[i][j], GTK_STATE_INSENSITIVE, &color);
@@ -512,11 +507,9 @@ void adelante(GtkButton *boton, gpointer userData)
         {
             if(elementos->turnoJ1)
             {
-                g_print("\nssss\n");
                 gtk_widget_set_sensitive(GTK_WIDGET(elementos->tb1), TRUE);
             }else if(elementos->turnoJ2)
             {
-                g_print("\nhhhhh\n");
                 gtk_widget_set_sensitive(GTK_WIDGET(elementos->tb2), TRUE);
             }
         }else
@@ -643,7 +636,7 @@ void backToMenu(GtkButton *boton, gpointer userData)
 }
 
 
-void on_close (GtkDialog *dialog, gint response_id, gpointer userData)
+void on_close(GtkDialog *dialog, gint response_id, gpointer userData)
 {
   /* This will cause the dialog to be destroyed */
   WIDGETS *elementos = (WIDGETS *)userData;
@@ -661,7 +654,7 @@ void ventanaAcercaDe(GtkButton *boton, gpointer userData)
 {
     WIDGETS *elementos = (WIDGETS *)userData;
     GtkWidget *window2;
-    const char *author[] = {"Sebastian Sedano", "Mauricio Olguín", "Santiago Zamora", '\0'};
+    const char *author[] = {"Sebastian Sedano", "Mauricio Olguin", "Santiago Zamora", '\0'};
     if(elementos->segundos > 0)
     {
         elementos->remove = TRUE;
@@ -706,8 +699,8 @@ void barcosPosition(GtkWidget *botones[7][7], GtkWidget *botonesJ2[7][7], WIDGET
             }else if(nombre[0] == 'X')
             {
                 do{
-                    x = rand() %6;
-                    y = rand() %6;
+                    x = rand() %7; 
+                    y = rand() %7;
                     g_print("R2.- 2: %c\n", nombre[0]);
                     nombre = strdup(gtk_widget_get_name(botones[x][y]));
                     elementos->seleccionJ1[i] = strdup(nombre);
@@ -732,8 +725,8 @@ void barcosPosition(GtkWidget *botones[7][7], GtkWidget *botonesJ2[7][7], WIDGET
                 
                 do{
                     g_print("R1.- 1: %c ---> %s\n", nombre[0], nombre);
-                    x = rand() %6;
-                    y = rand() %6; 
+                    x = rand() %7;
+                    y = rand() %7; 
                     nombre = strdup(gtk_widget_get_name(botonesJ2[x][y]));
                     elementos->seleccionJ2[i-10] = strdup(nombre);
                     g_print("R2: %c ---> %s ---> %d, %d\n", nombre[0], nombre, x, y);
@@ -848,7 +841,6 @@ void recuperarPartida(gpointer userData)
     gtk_widget_set_sensitive(GTK_WIDGET(elementos->guardarNuevoArchivo), FALSE);
     gtk_widget_set_sensitive(GTK_WIDGET(elementos->deshacer), FALSE);
     gtk_widget_set_sensitive(GTK_WIDGET(elementos->bAtras), FALSE);
-
 }
 
 //* Acomodara la informacion leida del archivo elegido apra recuperar la partida
@@ -858,7 +850,6 @@ void ordenar(WIDGETS *elementos, char *dato, int renglon)
     gboolean notFound = FALSE;
     char *realName;
     char *nameComp;
-    arreglarHistorial(dato);
     if(renglon <= 28)
     {
         switch (renglon)
@@ -898,12 +889,10 @@ void ordenar(WIDGETS *elementos, char *dato, int renglon)
                 {
                     elementos->turnoJ1 = TRUE;
                     elementos->turnoJ2 = FALSE;
-                    g_print("\n1\n");
                 }else if(strcmp("J2", dato) == 0)
                 {
                     elementos->turnoJ1 = FALSE;
                     elementos->turnoJ2 = TRUE;
-                    g_print("\n2\n");
                 }
             }
             break;
@@ -928,7 +917,6 @@ void ordenar(WIDGETS *elementos, char *dato, int renglon)
             index = dato[1] - '0';
             realName = strdup(elementos->seleccionJ1[index]);
             arreglarHistorial(realName);
-            arreglarHistorial(dato);
             for(int i = 0; i < 7; i++)
             {
                 for(int j = 0; j < 7; j++)
@@ -976,7 +964,6 @@ void ordenar(WIDGETS *elementos, char *dato, int renglon)
                         if(nameComp[strlen(nameComp) - 1] == '2')
                         {
                             cambiarNombre(nameComp);
-                            //g_print("si lo encontro %s --> %s\n", realName, nameComp);
                             if(strcmp(realName, nameComp) == 0)
                             {
                                 notFound = TRUE;
@@ -1103,6 +1090,7 @@ void saveNames(GtkButton *boton, gpointer userData)
                     if(elementos->nameJ1[i] >= 65 && elementos->nameJ1[i] < 91|| elementos->nameJ1[i] >= 97 && elementos->nameJ1[i] < 123)
                     {
                         lettersCount++;
+                        break;
                     }
                 }
                 for(int i = 0; i < strlen(elementos->nameJ2); i++)
@@ -1110,6 +1098,7 @@ void saveNames(GtkButton *boton, gpointer userData)
                     if(elementos->nameJ2[i] >= 65 && elementos->nameJ2[i] < 91|| elementos->nameJ2[i] >= 97 && elementos->nameJ2[i] < 123)
                     {
                         lettersCount++;
+                        break;
                         g_print(" -R++ %d\n", elementos->nameJ2[i]);
                     }
                 }
@@ -1227,15 +1216,14 @@ void crearJuegoNuevo(GtkButton *boton, gpointer userData)
     gtk_widget_destroy(elementos->ventana);
     if(elementos->gameMode == 0)
     {
-       jugador1VsCpu(elementos->nameJ1);
+        jugador1VsCpu(elementos->nameJ1);
     }else
     {
         jugador1VsJugador2(elementos->nameJ1, elementos->nameJ2);
     }
-    
 }
 
-
+//* Ventan de dialogo done mostrar el ganaodr o empate
 void dialogWinner(WIDGETS *elementos, int jugador)
 {
     GtkWidget *windowError, *errorDialog;
@@ -1244,9 +1232,7 @@ void dialogWinner(WIDGETS *elementos, int jugador)
     windowError = gtk_window_new(GTK_WINDOW_TOPLEVEL);
     if(jugador == 0)
     {
-
         strcat(mensaje, elementos->nameJ1);
-        g_print("a");
         errorDialog = gtk_message_dialog_new(GTK_WINDOW(windowError), GTK_DIALOG_MODAL, GTK_MESSAGE_INFO, GTK_BUTTONS_OK, mensaje, NULL);
         saveScoreBoard(elementos->nameJ1, elementos->segundos);
     }else if(jugador == 1)
@@ -1280,7 +1266,7 @@ void dialogWinner(WIDGETS *elementos, int jugador)
     } 
 }
 
-
+//* Fucnion para extraer los datos del arcivo de scores
 void saveScoreBoard(char *nombre, int tiempo)
 {
     char datos[20];
@@ -1307,6 +1293,7 @@ void saveScoreBoard(char *nombre, int tiempo)
     liberarMemorial(inicio);
 }
 
+//* Crea una lista dinamica
 void create_list(MARCADORES **inicio, MARCADORES **aux, char *nombre, int tiempo)
 {
     MARCADORES *nodo;
@@ -1333,7 +1320,7 @@ void create_list(MARCADORES **inicio, MARCADORES **aux, char *nombre, int tiempo
 
 }
 
-
+//* Ordena la lista dinamica de menor a mayor
 void ordenarMarcadores(MARCADORES *incio)
 {
     MARCADORES *nodo, *nodo2;
@@ -1374,7 +1361,7 @@ void ordenarMarcadores(MARCADORES *incio)
 }
 
 
-
+//* Rescribe el archivo de marcaodres guardadno solo los 5 primero lugares de la lista
 void reescribir_archivo(MARCADORES *inicio)
 {
     MARCADORES *nodo;
@@ -1397,7 +1384,7 @@ void reescribir_archivo(MARCADORES *inicio)
     fclose(fp);
 }
 
-
+//* Libera la memoria de l alista dinamica
 void liberarMemorial(MARCADORES *inicio)
 {
     MARCADORES *nodo;
@@ -1409,5 +1396,29 @@ void liberarMemorial(MARCADORES *inicio)
         nodo = inicio;
     }
     g_print("fin");
+}
+
+//* Ventena de ayuda
+void ayuda(GtkButton *boton, gpointer userData) {
+    
+    WIDGETS *elementos = (WIDGETS *)userData;
+    gtk_timeout_remove(elementos->idTimer);
+    GtkWidget *dialog, *window;
+    gint resp;
+    char message[700] = "El cronometro comenzara a correr hasta que se realice el primer movimiento, seleccionando alguno de los botones en tu tablero.\n\n\t\u2022Si el boton seleccionado revela el color azul, quiere decir que no has hundido uno de los barcos de tu oponente, por lo que sera turno de que CPU o el Jugador 2 haga un tiro.\n\n\t\u2022Si el boton seleccionado revela el color rojo, quiere decir que has hundido un barco de tu oponente, por lo que podras tirar una vez mas.\n\nQuien primero hunde 10 barcos de su oponente, habrá ganado la partida.";
+
+    window = gtk_window_new(GTK_WINDOW_TOPLEVEL);
+    dialog = gtk_message_dialog_new(GTK_WINDOW(window), GTK_DIALOG_DESTROY_WITH_PARENT, GTK_MESSAGE_INFO, GTK_BUTTONS_OK, message, NULL);
+    gtk_window_set_title(GTK_WINDOW(dialog), "AYUDA");
+    resp = gtk_dialog_run(GTK_DIALOG(dialog));
+    if(resp == GTK_RESPONSE_OK)
+    {
+        g_print("yes\n");
+        gtk_widget_destroy(dialog);
+        if(elementos->start)
+        {
+            restart(elementos);
+        }
+    }
 }
 //! FIN ---> Funciones Genearles
