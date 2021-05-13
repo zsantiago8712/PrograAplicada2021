@@ -22,6 +22,8 @@ extern gint timer(gpointer data);
 extern void restart(WIDGETS *elementos);
 extern void crearJuegoNuevo(GtkButton *boton, gpointer userData);
 extern void dialogWinner(WIDGETS *elementos, int jugador);
+extern void ayuda(GtkButton *boton, gpointer userData);
+
 //* FIN --> FUNCIONES GENERALES
 
 
@@ -152,6 +154,9 @@ void jugador1VsCpu(char *nombreJ1)
     elementos->remove = FALSE;
     elementos->saveAndQuit = FALSE;
     elementos->numVentan = 2;
+    elementos->toolSv = toolSv;
+    elementos->start = FALSE;
+    elementos->gameMode = 0;
 
 
     for(int i = 0; i < 7; i++)
@@ -186,6 +191,7 @@ void jugador1VsCpu(char *nombreJ1)
     gtk_widget_set_sensitive(GTK_WIDGET(deshacer), FALSE);
     gtk_widget_set_sensitive(GTK_WIDGET(rehacer), FALSE);
     gtk_widget_set_sensitive(GTK_WIDGET(guardar), FALSE);
+    gtk_widget_set_sensitive(GTK_WIDGET(toolSv), FALSE);
     gtk_widget_set_sensitive(GTK_WIDGET(elementos->guardarNuevoArchivo), FALSE);
     gtk_widget_set_name(GTK_WIDGET(guardar), "Guardar");
     gtk_menu_item_right_justify(GTK_MENU_ITEM(ayudaItem));
@@ -206,6 +212,7 @@ void jugador1VsCpu(char *nombreJ1)
     g_signal_connect(G_OBJECT(recuperar), "activate", G_CALLBACK(fileChooser), elementos);
     g_signal_connect(G_OBJECT(guardarEnNuevoArchivo), "activate", G_CALLBACK(createFile), elementos);
     g_signal_connect(G_OBJECT(acercaDe), "activate", G_CALLBACK(ventanaAcercaDe), elementos);
+    g_signal_connect(G_OBJECT(comoJugar), "activate", G_CALLBACK(ayuda), elementos);
     g_signal_connect(G_OBJECT(botonAtras), "clicked", G_CALLBACK(atras), elementos);
     g_signal_connect(G_OBJECT(botonAdelante), "clicked", G_CALLBACK(adelante), elementos);
     g_signal_connect(G_OBJECT(juegoNuevo), "activate", G_CALLBACK(crearJuegoNuevo), elementos);
@@ -299,14 +306,16 @@ void clickTableroVsCpu(GtkButton *boton, gpointer userData)
     GdkColor color;
     int x, y;
 
-    if(elementos->segundos == 0)
+    if(!elementos->start)
     {
         elementos->idTimer = gtk_timeout_add(1000, timer, elementos);
+        elementos->start = TRUE;
     }
 
     gtk_widget_set_sensitive(GTK_WIDGET(elementos->guardar), TRUE);
     gtk_widget_set_sensitive(GTK_WIDGET(elementos->guardarNuevoArchivo), TRUE);
     gtk_widget_set_sensitive(GTK_WIDGET(elementos->deshacer), TRUE);
+    gtk_widget_set_sensitive(GTK_WIDGET(elementos->toolSv), TRUE);
     g_print("\nC.- %c\n", nombre[0]);
     g_print("E: %d ----> I: %d\n", elementos->tirosTotal, index);
 
@@ -317,7 +326,7 @@ void clickTableroVsCpu(GtkButton *boton, gpointer userData)
             index = nombre[1] - '0';
             g_print("I: %d\n", index);
             elementos->tirosJ1 ++;
-            elementos->tirosTotalJ1--;
+            elementos->tirosTotalJ2--;
             gdk_color_parse("red", &color);
             tiro =  strdup(elementos->seleccionJ1[index]);
             gtk_widget_set_name(GTK_WIDGET(boton), elementos->seleccionJ1[index]);
@@ -333,6 +342,7 @@ void clickTableroVsCpu(GtkButton *boton, gpointer userData)
             gtk_widget_set_sensitive(GTK_WIDGET(elementos->tb1), TRUE);
             gtk_widget_set_sensitive(GTK_WIDGET(elementos->tb2), FALSE);
             strcat(tiro, "*B");
+
         }
         strcat(tiro, "1");
         elementos->tirosTotalJ1--;
@@ -363,11 +373,9 @@ void clickTableroVsCpu(GtkButton *boton, gpointer userData)
                 tiro = strdup(nombre);
                 if(elementos->tirosJ2 > 0)
                 {
-                    //g_print("12.-%d\n", elementos->tirosTotal);
                     for(int i = 0; i < elementos->tirosTotal; i++)
                     {
                         nameComp = strdup(g_list_nth_data(elementos->list, i));
-                        //g_print("11.- %s\n", nameComp);
                         if(nameComp[strlen(nameComp) - 1] == '2')
                         {
                             g_print("E-->%s--->%s\n", tiro, nameComp);
@@ -451,7 +459,7 @@ void clickTableroVsCpu(GtkButton *boton, gpointer userData)
         g_print("gano el jugador 2\n");
         gtk_timeout_remove(elementos->idTimer);
         dialogWinner(elementos, 1);
-    }else if(elementos->tirosTotalJ1 == 0 && elementos->tirosTotalJ2 == 0)
+    }else if(elementos->tirosTotalJ1 <= 0 || elementos->tirosTotalJ2 <= 0)
     {
         g_print("empataron\n");
         gtk_timeout_remove(elementos->idTimer);
