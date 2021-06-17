@@ -362,7 +362,6 @@ void clickTableroVsCpu(GtkButton *boton, gpointer userData)
             x = rand() % 7;
             y = rand() % 7;
             nombre = strdup(gtk_widget_get_name(GTK_WIDGET(elementos->botonesTb2[x][y])));
-            g_print("44.- %s\n", nombre);
             if(nombre[0] == 'Z')
             {
                 index = nombre[1] - '0';

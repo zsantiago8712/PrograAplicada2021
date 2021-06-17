@@ -3,8 +3,10 @@
 
 
 
+
 typedef struct datos
 {
     char letra;
     struct datos *sig;
+    struct datos *ant;
 }LISTA;

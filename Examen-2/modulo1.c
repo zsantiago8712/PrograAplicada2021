@@ -4,8 +4,12 @@ extern void create_list(LISTA **inicio, LISTA **aux, char *palabra);
 extern int buscar_ocurrencia(LISTA *inicio, char *palabra);
 extern void recorrer_list(LISTA *inicio, ARBOL **insercion);
 extern void imprimir(ARBOL *raiz);
-extern void guardaReporte(ARBOL *raiz, int *cont);
+extern void guardaReporte(ARBOL *raiz);
 extern void buscarPalabra(ARBOL *raiz, char *palabra);
+
+
+
+
 int main(int argc, char *argv[])
 {
 
@@ -21,8 +25,6 @@ int main(int argc, char *argv[])
     raiz = NULL;
 
     
-
-
     if(argc != 2)
     {
         printf("ERROR: de argumentos\n");
@@ -48,17 +50,14 @@ int main(int argc, char *argv[])
     }
 
     recorrer_list(inicio, &raiz);
-    guardaReporte(raiz, &cont);
+    guardaReporte(raiz);
     printf("RELEVANCIA          PALABRA\n\n");
     imprimir(raiz);
 
-    printf("Ingrese la palabra a buscar:\n");
+    printf("\n\nIngrese la palabra a buscar:\n");
     scanf("%s",user_palabra);
-    printf("%s", user_palabra);
     buscarPalabra(raiz, user_palabra);
-
-
-
+    printf("\n");
 
 
 

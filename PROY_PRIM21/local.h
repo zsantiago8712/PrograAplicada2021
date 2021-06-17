@@ -29,6 +29,7 @@ typedef struct widgets
     GtkWidget *eJugador2;
     GtkWidget *statusBar;
     GtkWidget *eTiempo;
+    GtkToolItem *toolSv;
     GList *list;
     gboolean remove;
     gboolean turnoJ1;
@@ -36,6 +37,7 @@ typedef struct widgets
     gboolean nextWindow;
     gboolean saveNewFile;
     gboolean saveAndQuit;
+    gboolean start;
     gint segundos;
     int gameMode;
     int idTimer;

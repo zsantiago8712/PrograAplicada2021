@@ -29,7 +29,6 @@ void agregar_cancion(LISTA **inicio, LISTA **aux)
     printf("\nIntroduce el año en el que salio el album: ");
     scanf("%d",&nodo->year);
  
-    nodo = *inicio;
     if(*inicio == NULL)
     {
         *inicio = nodo;
@@ -73,7 +72,7 @@ void ver_lista(LISTA *inicio){
     printf("--------------------------------");
     nodo = inicio;
     while(nodo!=NULL){
-        printf("%s\t%s\t%s\t%s\t%d\n",nodo->nombre_cancion, nodo->interprete, nodo->album, nodo->year);
+        printf("%s\t%s\t%s\t%d\n",nodo->nombre_cancion, nodo->interprete, nodo->album, nodo->year);
         nodo = nodo->sig;
     }
 }
@@ -85,19 +84,29 @@ void escribir_lista_archivo(LISTA *inicio){
     LISTA *nodo;
     char *name_file;
 
-    prinft("Pon el nombre del archivo en donde quieres que se copie: ");
+    printf("Pon el nombre del archivo en donde quieres que se copie: ");
     scanf("%s", name_file);
     fp = fopen(strdup(name_file), "w");
 
     nodo=inicio;
     while(nodo!=NULL){
-        fprintf(fp, "%s", nodo->nombre_cancion);
-        fprintf(fp, "%s", nodo->interprete);
-        fprintf(fp, "%s", nodo->album);
-        fprintf(fp, "%d", nodo->year);
+        fprintf(fp, "%s %s %s %d\n", nodo->nombre_cancion, nodo->interprete, nodo->album, nodo->year);
         nodo=nodo->sig;
     }
-
+    fclose(fp);
+    
 }
 
+
+void liberar_memoria(LISTA *inicio){
+	LISTA *nodo;
+	nodo=inicio;
+
+	while(nodo!=NULL){
+		inicio=nodo->sig;
+		free(nodo);
+		nodo=inicio;
+    }
+    exit(1);
+}
 

@@ -211,14 +211,14 @@ void imprimir(ARBOL *raiz){
 *la palabra y su ocurrencia, mientras hayan sido los 5 mayores.
 *ParÃ¡metros: apuntador a raiz, apuntador a fp y apuntador a contador.
 *Devuelve:void.*/
-void imprime(ARBOL *raiz, FILE *fp, int *cont){
+void imprime(ARBOL *raiz, FILE *fp){
+    static count = 0;
     if(raiz != NULL){
-        printf("%d", *cont);
-        if((*cont) < 5){
-            imprime(raiz->der,fp,cont);
+        if(count <= 4){
+            count += 1;
+            imprime(raiz->der,fp);
             fprintf(fp,"%s\t %d\n", raiz->palabra, raiz->ocurrencia);
-            (*cont) += 1;
-            imprime(raiz->izq,fp,cont);
+            imprime(raiz->izq,fp);
         }else
         {
             return;
@@ -229,15 +229,14 @@ void imprime(ARBOL *raiz, FILE *fp, int *cont){
 /*Funcion guardaReporte: Abre el archivo, manda a llamar a función imprime y cierra el archivo.
  *ParÃ¡metros: apuntador a raiz.
  *Devuelve void.*/
-void guardaReporte(ARBOL *raiz, int *cont){
+void guardaReporte(ARBOL *raiz){
     FILE *fp;
-   
     fp = fopen("resultados.txt","w");
     if(fp==NULL){
         printf("No existe el archivo");
     }
     fprintf(fp,"Palabra:\t Ocurrencias:\n");
-    imprime(raiz,fp, cont);
+    imprime(raiz,fp);
     fclose(fp);
 }
 
@@ -247,13 +246,19 @@ void guardaReporte(ARBOL *raiz, int *cont){
 Recibe: Apuntador a raiz y la palabra ingresada.
 Devuelve: void*/
 void buscarPalabra(ARBOL *raiz, char *palabra){
+    static int exist = 0;
     if(raiz != NULL){
         buscarPalabra(raiz->izq,palabra);
         if(strcmp(palabra,raiz->palabra) == 0){
             archivoBusqueda(raiz);
+            exist = 1;
             return;
         }
         buscarPalabra(raiz->der,palabra);
+    }
+    if(exist == 0)
+    {
+        printf("No existe la palabra\n");
     }
 }
 
@@ -276,6 +281,7 @@ void archivoBusqueda(ARBOL *raiz){
     }
     fprintf(fp,"Palabra:\t Ocurrencias:\n");
     fprintf(fp,"%s\t %d\n", raiz->palabra, raiz->ocurrencia);
+    printf("%s\t %d\n", raiz->palabra, raiz->ocurrencia);
     fclose(fp);
 }
 

@@ -140,10 +140,8 @@ void saveHistory(GtkButton *boton, gpointer userData)
                 elementos->nextWindow = FALSE;
                 return;
             }
-            g_print("si paso\n");
         }
         fclose(fp);
-        g_print("si paso\n");
     }
     g_print("CORRECTO GUARDAR H: ---> %s\n", elementos->fileName);
     
@@ -154,7 +152,6 @@ void saveHistory(GtkButton *boton, gpointer userData)
     fprintf(fp, "%d\n", elementos->tirosTotalJ2);
     fprintf(fp, "%d\n", elementos->tirosTotal);
     fprintf(fp, "%s\n", elementos->nameJ1);
-    g_print("bbb\n %s", elementos->nameJ2);
     fprintf(fp, "%s\n", elementos->nameJ2);
     
     if(elementos->turnoJ1)
@@ -186,7 +183,6 @@ void saveHistory(GtkButton *boton, gpointer userData)
         {
             g_print("\n");
         }
-        
     }
 
     for(int i = 0; i < 7; i++)
@@ -230,7 +226,6 @@ void saveHistory(GtkButton *boton, gpointer userData)
         restart(elementos);
     }
     elementos->nextWindow = FALSE;
-    
     
 }
 
@@ -1099,7 +1094,6 @@ void saveNames(GtkButton *boton, gpointer userData)
                     {
                         lettersCount++;
                         break;
-                        g_print(" -R++ %d\n", elementos->nameJ2[i]);
                     }
                 }
 
@@ -1165,7 +1159,6 @@ void cancelWindowName(GtkButton *boton, gpointer userData)
 {
     WIDGETS *elementos = (WIDGETS *)userData;
     gtk_widget_destroy(elementos->windowFile);
-    
 }
 
 //* ventan para mostrar dialogo de error con los nombres
@@ -1402,15 +1395,20 @@ void liberarMemorial(MARCADORES *inicio)
 void ayuda(GtkButton *boton, gpointer userData) {
     
     WIDGETS *elementos = (WIDGETS *)userData;
-    gtk_timeout_remove(elementos->idTimer);
+    if(elementos->start){
+        gtk_timeout_remove(elementos->idTimer);
+    }
     GtkWidget *dialog, *window;
     gint resp;
     char message[700] = "El cronometro comenzara a correr hasta que se realice el primer movimiento, seleccionando alguno de los botones en tu tablero.\n\n\t\u2022Si el boton seleccionado revela el color azul, quiere decir que no has hundido uno de los barcos de tu oponente, por lo que sera turno de que CPU o el Jugador 2 haga un tiro.\n\n\t\u2022Si el boton seleccionado revela el color rojo, quiere decir que has hundido un barco de tu oponente, por lo que podras tirar una vez mas.\n\nQuien primero hunde 10 barcos de su oponente, habrá ganado la partida.";
-
+    
     window = gtk_window_new(GTK_WINDOW_TOPLEVEL);
     dialog = gtk_message_dialog_new(GTK_WINDOW(window), GTK_DIALOG_DESTROY_WITH_PARENT, GTK_MESSAGE_INFO, GTK_BUTTONS_OK, message, NULL);
     gtk_window_set_title(GTK_WINDOW(dialog), "AYUDA");
+    
     resp = gtk_dialog_run(GTK_DIALOG(dialog));
+    g_print("%d", resp);
+    g_print("\nnel\n");
     if(resp == GTK_RESPONSE_OK)
     {
         g_print("yes\n");
