@@ -28,11 +28,11 @@ int main(int argc, char *argv[])
     fp = fopen(argv[1], "r");
     if(fp == NULL)
     {
-        aprintf("ERROR: no existe el archvio %s\n", argv[1]);
+        printf("ERROR: no existe el archvio %s\n", argv[1]);
         exit(1);
     }
     
-    while(fscanf(fp, "%c", &c) != EOF)
+    while(fscanf(fp, "%c", &c) == 1)
     {
         crear_lista(c, &inicio);
     }

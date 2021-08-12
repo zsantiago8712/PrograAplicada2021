@@ -57,5 +57,4 @@ void liberar_memoria(LISTA *inicio)
         nodo = inicio;
     }
     
-
 }

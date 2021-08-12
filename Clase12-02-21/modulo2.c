@@ -48,8 +48,6 @@ void recorrerLista(LISTA *inicio)
     }
   
 }
-
-
 void liberarMemoria(LISTA *inicio)
 {
     LISTA *nodo;
